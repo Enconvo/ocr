@@ -1,11 +1,11 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "tts",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Text to Speech",
   "title": "Text to Speech (TTS) services providers",
   "icon": "icon.png",
-  "author": "ysnows",
+  "author": "EnconvoAI",
   "categories": [
     "Text To Speech"
   ],
