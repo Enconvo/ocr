@@ -1,0 +1,165 @@
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "tts",
+  "version": "1.1.7",
+  "description": "Text to Speech",
+  "title": "Text to Speech (TTS) services providers",
+  "icon": "icon.png",
+  "author": "ysnows",
+  "categories": [
+    "Text To Speech"
+  ],
+  "group": "tts",
+  "license": "MIT",
+  "type": "module",
+  "commands": [
+    {
+      "name": "read_aloud",
+      "title": "Read Aloud With Edge TTS",
+      "description": "Read Aloud With Edge TTS",
+      "icon": "azure_icon.png",
+      "mode": "no-view",
+      "aiPlugin": true,
+      "params": [
+        {
+          "name": "text",
+          "description": "The text to be read aloud.",
+          "type": "string",
+          "required": true,
+          "default": ""
+        }
+      ],
+      "preferences": [
+        {
+          "name": "hotkey",
+          "description": "The hotkey used to trigger the command",
+          "type": "hotkey",
+          "required": false,
+          "default": "Option+T",
+          "title": "Hotkey"
+        }
+      ]
+    },
+    {
+      "name": "openai",
+      "title": "OpenAI TTS",
+      "description": "Read Aloud With OpenAI TTS",
+      "icon": "openai.png",
+      "mode": "no-view",
+      "aiPlugin": true,
+      "params": [
+        {
+          "name": "text",
+          "description": "The text to be converted to speech",
+          "type": "string",
+          "required": true,
+          "default": ""
+        }
+      ],
+      "preferences": [
+        {
+          "name": "openAIApiKey",
+          "description": "OpenAI api key",
+          "type": "password",
+          "required": false,
+          "title": "OpenAI Api Key",
+          "default": "",
+          "defaultProxy": "llm|chat_open_ai",
+          "placeholder": "OpenAI Api Key"
+        },
+        {
+          "name": "baseUrl",
+          "description": "OpenAI api base url",
+          "type": "textfield",
+          "required": false,
+          "title": "OpenAI Api Base Url",
+          "default": "",
+          "defaultProxy": "llm|chat_open_ai",
+          "placeholder": "OpenAI Api Base Url"
+        },
+        {
+          "name": "modelName",
+          "description": "The model to TTS.",
+          "type": "dropdown",
+          "required": false,
+          "title": "Model Name",
+          "default": "tts-1",
+          "data": [
+            {
+              "title": "tts-1",
+              "value": "tts-1"
+            },
+            {
+              "title": "tts-1-hd",
+              "value": "tts-1-hd"
+            }
+          ]
+        },
+        {
+          "name": "voice",
+          "description": "The voice to TTS.",
+          "type": "dropdown",
+          "required": false,
+          "title": "Voice",
+          "default": "alloy",
+          "data": [
+            {
+              "title": "alloy",
+              "value": "alloy"
+            },
+            {
+              "title": "echo",
+              "value": "echo"
+            },
+            {
+              "title": "fable",
+              "value": "fable"
+            },
+            {
+              "title": "onyx",
+              "value": "onyx"
+            },
+            {
+              "title": "nova",
+              "value": "nova"
+            },
+            {
+              "title": "shimmer",
+              "value": "shimmer"
+            }
+          ]
+        },
+        {
+          "name": "hotkey",
+          "description": "The hotkey used to trigger the command",
+          "type": "hotkey",
+          "required": false,
+          "default": "",
+          "title": "Hotkey"
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@enconvo/api": "^0.1.1",
+    "axios": "^1.4.0",
+    "openai": "^4.19.1",
+    "ws": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.17.14",
+    "@types/ws": "^8.5.5",
+    "eslint": "^8.33.0",
+    "prettier": "^2.8.3",
+    "tsup": "^7.2.0",
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "npm run lint --fix",
+    "format": "prettier --write \"**/*.ts\"",
+    "format:check": "prettier --list-different \"**/*.ts\"",
+    "build": "enconvo",
+    "dev": "enconvo --dev"
+  }
+}
