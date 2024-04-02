@@ -1,7 +1,7 @@
 import { SpeakOptions } from "@/tts/types.js";
 import WebSocket from "ws";
 import * as fs from "fs";
-import { AudioPlayer, MD5Util, environment, uuid } from "@enconvo/api";
+import { uuid as uuidv4, AudioPlayer, MD5Util, environment, uuid } from "@enconvo/api";
 import * as path from "path";
 import * as os from "os";
 import { writeFile } from 'fs';
