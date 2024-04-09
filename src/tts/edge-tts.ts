@@ -6,6 +6,8 @@ import * as path from "path";
 import { writeFile } from 'fs';
 import { promisify } from 'util';
 import axios from "axios";
+import { EdgeSpeechTTS, OpenAITTS, MicrosoftSpeechTTS } from '@lobehub/tts';
+import { Buffer } from 'buffer';
 
 function mkssml(text: string, voice: string, rate: number, volume: number) {
     return (
@@ -25,22 +27,8 @@ function ssmlHeadersPlusData(requestId: string, timestamp: string, ssml: string)
     );
 }
 
-function getHeadersAndData(data: string) {
-    const headers: { [key: string]: string } = {};
-    data.slice(0, data.indexOf("\r\n\r\n"))
-        .split("\r\n")
-        .forEach((line) => {
-            const [key, value] = line.split(":", 2);
-            headers[key] = value;
-        });
-    return { headers, data: data.slice(data.indexOf("\r\n\r\n") + 4) };
-}
 
 const trustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
-const wssURL =
-    "wss://speech.platform.bing.com/consumer/speech/synthesize/" +
-    "readaloud/edge/v1?TrustedClientToken=" +
-    trustedClientToken;
 
 // https://github.com/microsoft/cognitive-services-speech-sdk-js/blob/e6faf6b7fc1febb45993b940617719e8ed1358b2/src/sdk/SpeechSynthesizer.ts#L216
 const languageToDefaultVoice: { [key: string]: string } = {
@@ -269,78 +257,87 @@ interface EdgeTTSOptions extends SpeakOptions {
 
 
 
-const waitForOpenConnection = (ws: WebSocket) => {
-    return new Promise<void>((resolve) => {
-        ws.addEventListener("open", () => {
-
-            resolve();
-        });
-
-    });
-}
 
 // Create a play pool
 // let playPool: string[] = [];
 // a sorted map of text to audio path
-let playPool: string[] = [];
+interface PlayPoolItem {
+    text: string
+    path?: string
+    processed?: boolean
+}
+let playPool: PlayPoolItem[] = [];
 let draftPool: string[] = [];
 let preDraftPool: string[] = [];
 
 // Function to add to play pool
-function addToPlayPool(audioPath: string): void {
-    playPool.push(audioPath);
+function addToPlayPool(item: PlayPoolItem): void {
+    const poolItem = playPool.find((p) => p.text === item.text)
+    if (poolItem) {
+        poolItem.path = item.path
+    }
 }
 
 let isPlaying = false;
 // Function to play from play pool
 async function playFromPlayPool(stream: boolean = false): Promise<void> {
-    while (!isPlaying && playPool.length > 0) {
+    while (!isPlaying && playPool.filter((item) => { return !item.processed }).length > 0) {
         if (stream && preDraftPool.length <= 0) {
             AudioPlayer.show();
         }
 
-        let audioPath = playPool.shift();
-        if (audioPath) {
+        let audioPath = playPool.find((p) => !p.processed);
+
+        while (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
             isPlaying = true;
-            await AudioPlayer.play(audioPath);
+            audioPath.path && await AudioPlayer.play(audioPath.path);
             isPlaying = false;
-            if (!stream) {
-                draftPool.shift()
-                if (draftPool.length <= 0) {
-                    AudioPlayer.hide()
-                }
-            } else {
-                preDraftPool.push(audioPath ?? "")
-                if (preDraftPool.length === draftPool.length) {
-                    AudioPlayer.hide()
-                }
-            }
+            audioPath.processed = true;
+            audioPath = playPool.find((p) => !p.processed);
+
+            // if (!stream) {
+            //     draftPool.shift()
+            //     if (draftPool.length <= 0) {
+            //         AudioPlayer.hide()
+            //     }
+            // } else {
+            //     preDraftPool.push(audioPath.path ?? "")
+            //     if (preDraftPool.length === draftPool.length) {
+            //         AudioPlayer.hide()
+            //     }
+            // }
         }
     }
 }
 
 
-export async function speakSentence(text: string, options: any) {
+export function speakSentence(text: string, options: any) {
 
-    return new Promise<string>(async (resolve) => {
+    return new Promise<PlayPoolItem>(async (resolve) => {
 
         const commandName = options.commandName || environment.commandName
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
-        if (commandName === "read_aloud") {
-            const newPath = await edgeTTS({ text, options })
-            resolve(newPath)
-            return
-        } else if (commandName === "openai") {
+        try {
+            // if (commandName === "read_aloud") {
+            //     const newPath = await edgeTTS({ text, options })
+            //     resolve(newPath)
+            // } else if (commandName === "openai") {
             const newPath = await openaiTTS({ text, options })
             resolve(newPath)
-            return
+            // }
+        } catch (error) {
+            console.log("error", error)
+            resolve({
+                path: "",
+                text: text
+            })
         }
     });
 }
 
-export async function openaiTTS({ text, options }: { text: string, options: any }) {
-
+export async function openaiTTS({ text, options }: { text: string, options: any }): Promise<PlayPoolItem> {
     try {
+        console.log("text", text)
 
         const textMD5 = MD5Util.getMd5(text)
 
@@ -353,7 +350,10 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
 
         if (fs.existsSync(outputPath)) {
             // get absolute path
-            return outputPath
+            return {
+                path: outputPath,
+                text: text
+            }
         }
 
         const writeFileAsync = promisify(writeFile);
@@ -366,14 +366,7 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
             voice: options.voice
         };
 
-        options.baseUrl = options.baseUrl || "https://api.openai.com/v1";
-
-        if (options.baseUrl === 'https://api.openai.com' || options.baseUrl === 'https://api.openai.com/') {
-            options.baseUrl = 'https://api.openai.com/v1';
-        }
-
         const ttsUrl = `${options.baseUrl}/audio/speech`
-        console.log("ttsUrl", ttsUrl)
 
         const response = await axios.post(ttsUrl, data, {
             headers: {
@@ -386,137 +379,66 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
         const buffer = Buffer.from(response.data);
 
         await writeFileAsync(outputPath, buffer);
-        return outputPath
+        console.log("saved", text)
+        return {
+            path: outputPath,
+            text: text
+        }
     } catch (e) {
-        return ""
+        console.log("e", e)
+        return {
+            path: "",
+            text: text
+        }
     }
 }
 
-export async function edgeTTS({ text, options }: { text: string, options: any }) {
+//@ts-ignore
+global.WebSocket = WebSocket;
+export function edgeTTS({ text, options }: { text: string, options: any }) {
     return new Promise<string>(async (resolve, reject) => {
-        const textMD5 = MD5Util.getMd5(text)
+        try {
 
-        let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
+            console.log("text", text)
+            const textMD5 = MD5Util.getMd5(text)
+            // import at the top of the file
 
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
+            let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
 
-
-        let stopped = false;
-
-        const connectId = uuidv4().replace(/-/g, "");
-        const ws = new WebSocket(`${wssURL}&ConnectionId=${connectId}`);
-        ws.binaryType = "arraybuffer";
-
-        await waitForOpenConnection(ws);
-
-
-        ws.addEventListener("close", () => {
-
-        });
-
-
-        let audioData = new ArrayBuffer(0);
-        let downloadAudio = false;
-
-        const date = new Date().toString();
-
-
-        ws.addEventListener("error", (err) => {
-
-            reject(err);
-        });
-
-        ws.addEventListener("message", async (event) => {
-            if (typeof event.data === "string") {
-                const { headers } = getHeadersAndData(event.data);
-                const pathHeader = headers["Path"];
-                switch (pathHeader) {
-                    case "turn.start":
-                        downloadAudio = true;
-
-                        break;
-                    case "turn.end": {
-
-                        downloadAudio = false;
-                        if (!audioData.byteLength || stopped) {
-
-                            // get absolute path
-                            // remove all listeners,去掉监听，让程序退出
-                            ws.removeAllListeners();
-                            // close ws
-                            ws.close();
-                            reject("stopped");
-                            return;
-                        }
-                        // save as mp3
-
-                        const outputPath = path.join(outputDir, `${textMD5}.mp3`);
-
-                        if (fs.existsSync(outputPath)) {
-                            // get absolute path
-                            resolve(outputPath)
-                            return;
-                        }
-
-                        let buffer = Buffer.from(audioData);
-
-                        if (!fs.existsSync(path.dirname(outputPath))) {
-                            fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-                        }
-
-                        if (!fs.existsSync(outputPath)) {
-                            fs.writeFileSync(outputPath, buffer);
-                        }
-
-
-                        // get absolute path
-                        // remove all listeners,去掉监听，让程序退出
-                        ws.removeAllListeners();
-                        // close ws
-                        ws.close();
-                        resolve(outputPath);
-
-                        break;
-                    }
-                }
-            } else if (event.data instanceof ArrayBuffer) {
-                if (!downloadAudio) {
-                    return;
-                }
-                // See: https://github.com/microsoft/cognitive-services-speech-sdk-js/blob/d071d11d1e9f34d6f79d0ab6114c90eecb02ba1f/src/common.speech/WebsocketMessageFormatter.ts#L46-L47
-                const dataview = new DataView(event.data);
-                const headerLength = dataview.getInt16(0);
-                if (event.data.byteLength > headerLength + 2) {
-                    const newBody = event.data.slice(2 + headerLength);
-                    const newAudioData = new ArrayBuffer(audioData.byteLength + newBody.byteLength);
-                    const mergedUint8Array = new Uint8Array(newAudioData);
-                    mergedUint8Array.set(new Uint8Array(audioData), 0);
-                    mergedUint8Array.set(new Uint8Array(newBody), audioData.byteLength);
-                    audioData = newAudioData;
-                }
+            if (!fs.existsSync(outputDir)) {
+                fs.mkdirSync(outputDir, { recursive: true });
             }
-        });
 
-        ws.send(
-            `X-Timestamp:${date}\r\n` +
-            "Content-Type:application/json; charset=utf-8\r\n" +
-            "Path:speech.config\r\n\r\n" +
-            "{\"context\":{\"synthesis\":{\"audio\":{\"metadataoptions\":{" +
-            "\"sentenceBoundaryEnabled\":false,\"wordBoundaryEnabled\":true}," +
-            "\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"" +
-            "}}}}\r\n"
-        );
+            const outputPath = path.join(outputDir, `${textMD5}.mp3`);
 
-        ws.send(
-            ssmlHeadersPlusData(
-                connectId,
-                date,
-                mkssml(text, options.voice ?? languageToDefaultVoice[options.lang ?? "en-US"], 1, 100)
-            )
-        );
+            if (fs.existsSync(outputPath)) {
+                // get absolute path
+                resolve(outputPath)
+                return;
+            }
+            // Instantiate EdgeSpeechTTS
+            const tts = new EdgeSpeechTTS({ locale: 'en-US' });
 
+            // Create speech synthesis request payload
+            const payload = {
+                input: text,
+                options: {
+                    voice: 'en-US-GuyNeural',
+                },
+            };
+
+            // Call create method to synthesize speech
+            const response = await tts.create(payload);
+
+            // generate speech file
+            const mp3Buffer = Buffer.from(await response.arrayBuffer());
+            const speechFile = outputPath;
+
+            fs.writeFileSync(speechFile, mp3Buffer);
+            resolve(outputPath)
+        } catch (error) {
+            reject(error)
+        }
     });
 }
 
@@ -572,18 +494,6 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
     );
 
     for (const content of texts) {
-        console.log("texts", content)
-
-        if (save) {
-            try {
-                const path = await speakSentence(escape(removeIncompatibleCharacters(content)), options)
-                console.log("path", path)
-            } catch (e) {
-                console.log(e)
-            }
-            return
-        }
-
         if (stream) {
             const textArr = AudioPlayer.splitSentence(content, AudioPlayer.streamSplitSize || 0, streamEnd)
             if (streamEnd) {
@@ -597,9 +507,6 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
                     needPlay = true;
                 }
             }
-
-            console.log("textArr", streamPlayPool)
-
 
             if (needPlay) {
                 playFromStreamPlayPool(options);
@@ -620,9 +527,15 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
 
             for (const text of textArr) {
                 try {
-                    const path = await speakSentence(escape(removeIncompatibleCharacters(text)), options)
-                    addToPlayPool(path);
-                    playFromPlayPool();
+                    playPool.push({
+                        text,
+                        processed: false
+                    })
+                    const item = await speakSentence(escape(removeIncompatibleCharacters(text)), options)
+                    if (item && item.path && item.path.trim() !== "") {
+                        addToPlayPool(item);
+                        playFromPlayPool();
+                    }
                 } catch (e) {
                     console.log(e)
                 }
