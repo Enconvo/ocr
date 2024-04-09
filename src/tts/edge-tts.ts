@@ -8,6 +8,7 @@ import { promisify } from 'util';
 import axios from "axios";
 import { EdgeSpeechTTS, OpenAITTS, MicrosoftSpeechTTS } from '@lobehub/tts';
 import { Buffer } from 'buffer';
+import { EdgeTTS } from 'node-edge-tts'
 
 function mkssml(text: string, voice: string, rate: number, volume: number) {
     return (
@@ -318,13 +319,13 @@ export function speakSentence(text: string, options: any) {
         const commandName = options.commandName || environment.commandName
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         try {
-            // if (commandName === "read_aloud") {
-            //     const newPath = await edgeTTS({ text, options })
-            //     resolve(newPath)
-            // } else if (commandName === "openai") {
-            const newPath = await openaiTTS({ text, options })
-            resolve(newPath)
-            // }
+            if (commandName === "read_aloud") {
+                const newPath = await edgeTTS({ text, options })
+                resolve(newPath)
+            } else if (commandName === "openai") {
+                const newPath = await openaiTTS({ text, options })
+                resolve(newPath)
+            }
         } catch (error) {
             console.log("error", error)
             resolve({
@@ -379,7 +380,7 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
         const buffer = Buffer.from(response.data);
 
         await writeFileAsync(outputPath, buffer);
-        console.log("saved", text)
+        console.log("saved", `'${text}'`)
         return {
             path: outputPath,
             text: text
@@ -393,10 +394,8 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
     }
 }
 
-//@ts-ignore
-global.WebSocket = WebSocket;
 export function edgeTTS({ text, options }: { text: string, options: any }) {
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise<PlayPoolItem>(async (resolve, reject) => {
         try {
 
             console.log("text", text)
@@ -413,29 +412,20 @@ export function edgeTTS({ text, options }: { text: string, options: any }) {
 
             if (fs.existsSync(outputPath)) {
                 // get absolute path
-                resolve(outputPath)
+                resolve({
+                    path: outputPath,
+                    text: text
+                })
                 return;
             }
             // Instantiate EdgeSpeechTTS
-            const tts = new EdgeSpeechTTS({ locale: 'en-US' });
-
-            // Create speech synthesis request payload
-            const payload = {
-                input: text,
-                options: {
-                    voice: 'en-US-GuyNeural',
-                },
-            };
-
-            // Call create method to synthesize speech
-            const response = await tts.create(payload);
-
-            // generate speech file
-            const mp3Buffer = Buffer.from(await response.arrayBuffer());
-            const speechFile = outputPath;
-
-            fs.writeFileSync(speechFile, mp3Buffer);
-            resolve(outputPath)
+            const tts = new EdgeTTS()
+            await tts.ttsPromise(text, outputPath)
+            console.log("saved", `'${text}'`)
+            resolve({
+                path: outputPath,
+                text: text
+            })
         } catch (error) {
             reject(error)
         }
