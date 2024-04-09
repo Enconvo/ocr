@@ -34,9 +34,8 @@ export const langCode2TTSLang: Record<string, string> = {
     "sv": "sv-SE",
 };
 
-let supportVoices: SpeechSynthesisVoice[] = [];
 
-export async function speak({ text, lang, stream, streamEnd, streamStart, onFinish, save, options }: SpeakOptions) {
+export async function speak({ text, lang, stream, streamEnd, streamStart, save, options }: SpeakOptions) {
     const settings = {
         tts: {
             provider: "EdgeTTS",
@@ -57,11 +56,9 @@ export async function speak({ text, lang, stream, streamEnd, streamStart, onFini
     const volume = settings.tts?.volume;
 
 
-    // if (!settings.tts?.provider || settings.tts?.provider === 'EdgeTTS') {
     return edgeSpeak({
         text,
         lang: langTag,
-        onFinish,
         voice: voiceCfg?.voice,
         rate,
         volume: volume ?? 100,
@@ -71,22 +68,4 @@ export async function speak({ text, lang, stream, streamEnd, streamStart, onFini
         save: save,
         options: options
     });
-    // }
-
-    // const utterance = new SpeechSynthesisUtterance()
-    // if (onFinish) {
-    //     utterance.addEventListener('end', onFinish, { once: true })
-    // }
-    //
-    // utterance.text = text
-    // utterance.lang = langTag
-    // utterance.rate = rate
-    // utterance.volume = volume ? volume / 100 : 1
-    //
-    // const defaultVoice = supportVoices.find((v) => v.lang === langTag) ?? null
-    // const settingsVoice = supportVoices.find((v) => v.voiceURI === voiceCfg?.voice)
-    // utterance.voice = settingsVoice ?? defaultVoice
-    //
-    // speechSynthesis.speak(utterance)
-    // return { stopSpeak: () => speechSynthesis.cancel() }
 }

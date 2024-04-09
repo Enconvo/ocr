@@ -3,11 +3,9 @@ import WebSocket from "ws";
 import * as fs from "fs";
 import { uuid as uuidv4, AudioPlayer, MD5Util, environment, uuid } from "@enconvo/api";
 import * as path from "path";
-import * as os from "os";
 import { writeFile } from 'fs';
 import { promisify } from 'util';
 import axios from "axios";
-import { execSync } from "child_process";
 
 function mkssml(text: string, voice: string, rate: number, volume: number) {
     return (
@@ -272,7 +270,7 @@ interface EdgeTTSOptions extends SpeakOptions {
 
 
 const waitForOpenConnection = (ws: WebSocket) => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
         ws.addEventListener("open", () => {
 
             resolve();
@@ -302,86 +300,64 @@ async function playFromPlayPool(stream: boolean = false): Promise<void> {
         }
 
         let audioPath = playPool.shift();
-        isPlaying = true;
-        await AudioPlayer.play(audioPath);
-        isPlaying = false;
-
-        if (!stream) {
-            draftPool.shift()
-            if (draftPool.length <= 0) {
-                AudioPlayer.hide()
-            }
-        } else {
-            preDraftPool.push(audioPath ?? "")
-            if (preDraftPool.length === draftPool.length) {
-                AudioPlayer.hide()
+        if (audioPath) {
+            isPlaying = true;
+            await AudioPlayer.play(audioPath);
+            isPlaying = false;
+            if (!stream) {
+                draftPool.shift()
+                if (draftPool.length <= 0) {
+                    AudioPlayer.hide()
+                }
+            } else {
+                preDraftPool.push(audioPath ?? "")
+                if (preDraftPool.length === draftPool.length) {
+                    AudioPlayer.hide()
+                }
             }
         }
     }
 }
 
 
-export async function speakSentence(text: string, lang: string | undefined, voice: string, rate: number, volume: number, options: any) {
+export async function speakSentence(text: string, options: any) {
 
-    return new Promise<string>(async (resolve, reject) => {
-        const textMD5 = await MD5Util.getMd5(text)
+    return new Promise<string>(async (resolve) => {
 
-        let outputDir = path.join(os.homedir(), `Library/Caches/com.frostyeve.enconvo/tts/${environment.commandName}/`);
-
-        if (environment.commandName === "read_aloud") {
-            outputDir = path.join(os.homedir(), `Library/Caches/com.frostyeve.enconvo/tts/${environment.commandName}/${voice}`)
-        } else if (environment.commandName === "openai") {
-            outputDir = path.join(os.homedir(), `Library/Caches/com.frostyeve.enconvo/tts/${environment.commandName}/${options.voice}/${options.modelName}`)
-        }
-
-
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-        const outputPath = path.join(outputDir, `${textMD5}.m4a`);
-        if (fs.existsSync(outputPath)) {
-
-            // get absolute path
-            resolve(outputPath)
-            return;
-        }
         const commandName = options.commandName || environment.commandName
         console.log("options-", commandName)
         console.log("options", options)
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         if (commandName === "read_aloud") {
-            console.log("tts", text, outputPath)
-            const newPath = await edge(text, lang, outputPath, voice, rate, volume)
+            const newPath = await edgeTTS({ text, options })
             resolve(newPath)
             return
         } else if (commandName === "openai") {
-            const newPath = await openaiTTS(text, lang, outputPath, voice, rate, volume, options)
-            resolve(newPath)
-            return
-        } else if (commandName === "system") {
-            const newPath = await systemTTS(text, lang, outputPath, voice, rate, volume, options)
+            const newPath = await openaiTTS({ text, options })
             resolve(newPath)
             return
         }
     });
 }
 
-export async function systemTTS(text: string, lang: string | undefined, outputPath: string, voice: string, rate: number, volume: number, options: any) {
+export async function openaiTTS({ text, options }: { text: string, options: any }) {
 
     try {
 
-        // 调用 say “hello world” -o hello.m4a
-        execSync(`say '${text}' -o ${outputPath}`, { stdio: 'inherit' });
+        const textMD5 = MD5Util.getMd5(text)
 
-        return outputPath
-    } catch (e) {
-        return ""
-    }
-}
+        let outputDir = `${environment.cachePath}/tts/${options.voice}/${options.modelName}`
 
-export async function openaiTTS(text: string, lang: string | undefined, outputPath: string, voice: string, rate: number, volume: number, options: any) {
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+        const outputPath = path.join(outputDir, `${textMD5}.m4a`);
 
-    try {
+        if (fs.existsSync(outputPath)) {
+            // get absolute path
+            return outputPath
+        }
+
         const writeFileAsync = promisify(writeFile);
 
         const OPENAI_API_KEY = options.openAIApiKey; // Replace with your actual API key
@@ -397,10 +373,6 @@ export async function openaiTTS(text: string, lang: string | undefined, outputPa
         if (options.baseUrl === 'https://api.openai.com' || options.baseUrl === 'https://api.openai.com/') {
             options.baseUrl = 'https://api.openai.com/v1';
         }
-
-        // if (options.baseUrl === 'https://api.openai.com/v1') {
-        //     options.baseUrl = 'https://ai.openreader.xyz/v1'
-        // }
 
         const ttsUrl = `${options.baseUrl}/audio/speech`
         console.log("ttsUrl", ttsUrl)
@@ -422,8 +394,17 @@ export async function openaiTTS(text: string, lang: string | undefined, outputPa
     }
 }
 
-export async function edge(text: string, lang: string | undefined, outputPath: string, voice: string, rate: number, volume: number) {
+export async function edgeTTS({ text, options }: { text: string, options: any }) {
     return new Promise<string>(async (resolve, reject) => {
+        const textMD5 = MD5Util.getMd5(text)
+
+        let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
+
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+
         let stopped = false;
 
         const connectId = uuidv4().replace(/-/g, "");
@@ -436,6 +417,7 @@ export async function edge(text: string, lang: string | undefined, outputPath: s
         ws.addEventListener("close", () => {
 
         });
+
 
         let audioData = new ArrayBuffer(0);
         let downloadAudio = false;
@@ -471,6 +453,14 @@ export async function edge(text: string, lang: string | undefined, outputPath: s
                             return;
                         }
                         // save as mp3
+
+                        const outputPath = path.join(outputDir, `${textMD5}.mp3`);
+
+                        if (fs.existsSync(outputPath)) {
+                            // get absolute path
+                            resolve(outputPath)
+                            return;
+                        }
 
                         let buffer = Buffer.from(audioData);
 
@@ -525,7 +515,7 @@ export async function edge(text: string, lang: string | undefined, outputPath: s
             ssmlHeadersPlusData(
                 connectId,
                 date,
-                mkssml(text, voice ?? languageToDefaultVoice[lang ?? "en-US"], rate, volume)
+                mkssml(text, options.voice ?? languageToDefaultVoice[options.lang ?? "en-US"], 1, 100)
             )
         );
 
@@ -543,7 +533,7 @@ function addToStreamPlayPool(audioPath: string): void {
 
 let isStreamPlaying = false;
 // Function to play from play pool
-async function playFromStreamPlayPool(lang?: string, voice?: string, rate: number = 1, volume: number = 100, options: object = {}): Promise<void> {
+async function playFromStreamPlayPool(options: object = {}): Promise<void> {
     while (!isStreamPlaying && streamPlayPool.length > 0) {
         isStreamPlaying = true;
 
@@ -551,8 +541,7 @@ async function playFromStreamPlayPool(lang?: string, voice?: string, rate: numbe
 
         for (const text of tmplayPool) {
             try {
-                const path = await speakSentence(escape(removeIncompatibleCharacters(text)), lang, voice, rate, volume, options)
-                // const path = "/Users/ysnows/Library/Caches/com.frostyeve.enconvo/tts/read_aloud/0a34771119d032c7b0347156e2b3e2e2.mp3";
+                const path = await speakSentence(escape(removeIncompatibleCharacters(text)), options)
                 addToPlayPool(path);
                 playFromPlayPool(true);
                 // remove from streamPlayPool
@@ -567,7 +556,7 @@ async function playFromStreamPlayPool(lang?: string, voice?: string, rate: numbe
 }
 
 
-export async function speak({ text, lang, onFinish, voice, rate = 1, volume = 100, stream = false, streamEnd = true, streamStart = false, save, options = {} }: EdgeTTSOptions) {
+export async function speak({ text, lang, voice, rate = 1, volume = 100, stream = false, streamEnd = true, streamStart = false, save, options = {} }: EdgeTTSOptions) {
 
     if (streamStart) {
         tmpStreamPlayPool = [];
@@ -588,7 +577,7 @@ export async function speak({ text, lang, onFinish, voice, rate = 1, volume = 10
 
         if (save) {
             try {
-                const path = await speakSentence(escape(removeIncompatibleCharacters(content)), lang, voice, rate, volume, options)
+                const path = await speakSentence(escape(removeIncompatibleCharacters(content)), options)
                 console.log("path", path)
             } catch (e) {
                 console.log(e)
@@ -613,7 +602,7 @@ export async function speak({ text, lang, onFinish, voice, rate = 1, volume = 10
 
 
             if (needPlay) {
-                playFromStreamPlayPool(lang, voice, rate, volume, options);
+                playFromStreamPlayPool(options);
             }
 
             if (streamEnd) {
@@ -631,7 +620,7 @@ export async function speak({ text, lang, onFinish, voice, rate = 1, volume = 10
 
             for (const text of textArr) {
                 try {
-                    const path = await speakSentence(escape(removeIncompatibleCharacters(text)), lang, voice, rate, volume, options)
+                    const path = await speakSentence(escape(removeIncompatibleCharacters(text)), options)
                     addToPlayPool(path);
                     playFromPlayPool();
                 } catch (e) {

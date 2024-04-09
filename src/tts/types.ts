@@ -6,7 +6,6 @@ export interface SpeakOptions {
     streamStart?: boolean;
     save?: boolean;
     options?: object;
-    onFinish?: (files: string[]) => void;
 }
 
 export type TTSProvider = "WebSpeech" | "EdgeTTS"
