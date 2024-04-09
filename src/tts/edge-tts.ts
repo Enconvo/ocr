@@ -325,8 +325,6 @@ export async function speakSentence(text: string, options: any) {
     return new Promise<string>(async (resolve) => {
 
         const commandName = options.commandName || environment.commandName
-        console.log("options-", commandName)
-        console.log("options", options)
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         if (commandName === "read_aloud") {
             const newPath = await edgeTTS({ text, options })
@@ -525,7 +523,7 @@ export async function edgeTTS({ text, options }: { text: string, options: any })
 
 let streamPlayPool: string[] = [];
 let tmpStreamPlayPool: string[] = [];
-// Function to add to play pool
+
 function addToStreamPlayPool(audioPath: string): void {
     streamPlayPool.push(audioPath);
     tmpStreamPlayPool.push(audioPath);
@@ -556,7 +554,7 @@ async function playFromStreamPlayPool(options: object = {}): Promise<void> {
 }
 
 
-export async function speak({ text, lang, voice, rate = 1, volume = 100, stream = false, streamEnd = true, streamStart = false, save, options = {} }: EdgeTTSOptions) {
+export async function speak({ text, voice, stream = false, streamEnd = true, streamStart = false, save, options = {} }: EdgeTTSOptions) {
 
     if (streamStart) {
         tmpStreamPlayPool = [];
@@ -570,10 +568,11 @@ export async function speak({ text, lang, voice, rate = 1, volume = 100, stream 
 
     const texts = splitTextByByteLength(
         escape(removeIncompatibleCharacters(text)),
-        calcMaxMesgSize(voice ?? languageToDefaultVoice[lang ?? "en-US"], rate, volume)
+        calcMaxMesgSize(voice ?? languageToDefaultVoice[options.lang ?? "en-US"], 1, 100)
     );
 
     for (const content of texts) {
+        console.log("texts", content)
 
         if (save) {
             try {
@@ -584,7 +583,6 @@ export async function speak({ text, lang, voice, rate = 1, volume = 100, stream 
             }
             return
         }
-
 
         if (stream) {
             const textArr = AudioPlayer.splitSentence(content, AudioPlayer.streamSplitSize || 0, streamEnd)
@@ -599,6 +597,8 @@ export async function speak({ text, lang, voice, rate = 1, volume = 100, stream 
                     needPlay = true;
                 }
             }
+
+            console.log("textArr", streamPlayPool)
 
 
             if (needPlay) {

@@ -52,16 +52,12 @@ export async function speak({ text, lang, stream, streamEnd, streamStart, save, 
     };
     const langTag = langCode2TTSLang[lang ?? "en"] ?? "en-US";
     const voiceCfg = settings.tts?.voices?.find((item) => item.lang === lang);
-    const rate = (settings.tts?.rate ?? 10) / 10;
-    const volume = settings.tts?.volume;
 
 
     return edgeSpeak({
         text,
         lang: langTag,
         voice: voiceCfg?.voice,
-        rate,
-        volume: volume ?? 100,
         stream: stream,
         streamEnd: streamEnd,
         streamStart: streamStart,
