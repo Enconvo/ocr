@@ -165,11 +165,10 @@ interface PlayPoolItem {
     processed?: boolean
 }
 let playPool: PlayPoolItem[] = [];
-let draftPool: string[] = [];
-let preDraftPool: string[] = [];
 
 // Function to add to play pool
 function addToPlayPool(item: PlayPoolItem): void {
+    console.log("addToPlayPool", item.text)
     const poolItem = playPool.find((p) => p.text === item.text)
     if (poolItem) {
         poolItem.path = item.path
@@ -180,34 +179,32 @@ function addToPlayPool(item: PlayPoolItem): void {
 
 let isPlaying = false;
 // Function to play from play pool
-async function playFromPlayPool(stream: boolean = false): Promise<void> {
-    while (!isPlaying && playPool.filter((item) => { return !item.processed }).length > 0) {
-        if (stream && preDraftPool.length <= 0) {
-            AudioPlayer.show();
-        }
+async function playFromPlayPool(): Promise<void> {
+    let unprocessedItems = playPool.filter((item) => { return !item.processed })
+    console.log("play", "pre begin", playPool)
+    if (!isPlaying && unprocessedItems.length > 0) {
 
         let audioPath = playPool.find((p) => !p.processed);
+        AudioPlayer.show();
+        console.log("play", "begin", audioPath?.text, audioPath?.path)
 
-        while (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
-            isPlaying = true;
+        isPlaying = true;
+        if (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
+            console.log("play", "playing", audioPath?.text)
             audioPath.path && await AudioPlayer.play(audioPath.path);
-            isPlaying = false;
             audioPath.processed = true;
+            console.log("play", "end", audioPath?.text, playPool)
             audioPath = playPool.find((p) => !p.processed);
-
-            // if (!stream) {
-            //     draftPool.shift()
-            //     if (draftPool.length <= 0) {
-            //         AudioPlayer.hide()
-            //     }
-            // } else {
-            //     preDraftPool.push(audioPath.path ?? "")
-            //     if (preDraftPool.length === draftPool.length) {
-            //         AudioPlayer.hide()
-            //     }
-            // }
+            console.log("play", "end2", audioPath)
+        }
+        isPlaying = false;
+        audioPath = playPool.find((p) => !p.processed);
+        console.log("play", "end isPlaying", audioPath)
+        if (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
+            playFromPlayPool();
         }
     }
+    console.log("play", "after begin", playPool)
 }
 
 
@@ -341,15 +338,10 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
             tmpStreamPlayPool = [];
             isPlaying = false;
             playPool = [];
-            draftPool = [];
-            preDraftPool = [];
             return
         }
 
         const textArr = AudioPlayer.splitSentence(text, AudioPlayer.streamSplitSize, streamEnd)
-        if (streamEnd) {
-            draftPool = [...textArr]
-        }
 
         for (const text of textArr) {
             if (!tmpStreamPlayPool.includes(text)) {
@@ -359,26 +351,30 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
                     text,
                     processed: false
                 })
-                speakSentence(text, options).then((item) => {
+                speakSentence(text, options).then(async (item) => {
+                    console.log("item", item)
                     if (item && item.path && item.path.trim() !== "") {
+
+                        console.log("item begin", item.text)
                         addToPlayPool(item);
-                        playFromPlayPool();
+                        playFromPlayPool().then()
+                    } else {
+                        console.log("item begin2", item.text)
+                        let audioPath = playPool.find((p) => p.text === text);
+                        if (audioPath) {
+                            audioPath.processed = true
+                        }
+                        playFromPlayPool().then()
                     }
                 })
             }
         }
 
-        if (streamEnd) {
-            tmpStreamPlayPool = [];
-        }
-
     } else {
         playPool = [];
-        draftPool = [];
         isPlaying = false
-        const textArr = AudioPlayer.splitSentence(text, 200)
+        const textArr = AudioPlayer.splitSentence(text, 100)
         console.log("textArr", textArr)
-        draftPool = [...textArr]
         AudioPlayer.show()
 
         for (const text of textArr) {
@@ -390,6 +386,12 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
                 speakSentence(text, options).then((item) => {
                     if (item && item.path && item.path.trim() !== "") {
                         addToPlayPool(item);
+                        playFromPlayPool();
+                    } else {
+                        let audioPath = playPool.find((p) => p.text === text);
+                        if (audioPath) {
+                            audioPath.processed = true
+                        }
                         playFromPlayPool();
                     }
                 })
