@@ -141,16 +141,13 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.1",
-    "@lobehub/tts": "^1.24.0",
+    "@enconvo/api": "/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
     "axios": "^1.4.0",
     "node-edge-tts": "^1.2.2",
-    "openai": "^4.19.1",
-    "ws": "^8.14.1"
+    "openai": "^4.19.1"
   },
   "devDependencies": {
     "@types/node": "^18.17.14",
-    "@types/ws": "^8.5.5",
     "eslint": "^8.33.0",
     "prettier": "^2.8.3",
     "tsup": "^7.2.0",
