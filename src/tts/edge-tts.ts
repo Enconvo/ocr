@@ -1,6 +1,6 @@
 import { SpeakOptions } from "@/tts/types.js";
 import * as fs from "fs";
-import { uuid as uuidv4, AudioPlayer, MD5Util, environment } from "@enconvo/api";
+import { AudioPlayer, MD5Util, environment } from "@enconvo/api";
 import * as path from "path";
 import { writeFile } from 'fs';
 import { promisify } from 'util';
@@ -8,7 +8,9 @@ import axios from "axios";
 import { Buffer } from 'buffer';
 import { EdgeTTS } from 'node-edge-tts'
 
-
+import sound from "sound-play";
+import play from 'audio-play';
+import load from 'audio-loader';
 
 const trustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 
@@ -181,30 +183,36 @@ let isPlaying = false;
 // Function to play from play pool
 async function playFromPlayPool(): Promise<void> {
     let unprocessedItems = playPool.filter((item) => { return !item.processed })
-    console.log("play", "pre begin", playPool)
+    // console.log("play", "pre begin", unprocessedItems.length)
     if (!isPlaying && unprocessedItems.length > 0) {
 
         let audioPath = playPool.find((p) => !p.processed);
-        AudioPlayer.show();
-        console.log("play", "begin", audioPath?.text, audioPath?.path)
+        // AudioPlayer.show();
+        // console.log("play", "begin", audioPath?.text, audioPath?.path)
 
         isPlaying = true;
         if (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
             console.log("play", "playing", audioPath?.text)
             audioPath.path && await AudioPlayer.play(audioPath.path);
+            // await sound.play(audioPath.path);
+
             audioPath.processed = true;
-            console.log("play", "end", audioPath?.text, playPool)
+            console.log("play", "end", audioPath?.text)
             audioPath = playPool.find((p) => !p.processed);
             console.log("play", "end2", audioPath)
         }
         isPlaying = false;
         audioPath = playPool.find((p) => !p.processed);
-        console.log("play", "end isPlaying", audioPath)
+        // console.log("play", "end isPlaying", audioPath)
         if (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
             playFromPlayPool();
         }
     }
-    console.log("play", "after begin", playPool)
+    unprocessedItems = playPool.filter((item) => { return !item.processed })
+    console.log("play", "after begin", unprocessedItems.length)
+    if (unprocessedItems.length <= 0) {
+        // AudioPlayer.hide();
+    }
 }
 
 
@@ -232,7 +240,7 @@ export function speakSentence(text: string, options: any) {
     });
 }
 
-export async function openaiTTS({ text, options }: { text: string, options: any }): Promise<PlayPoolItem> {
+export async function openaiTTS({ text, options, retry = 0 }: { text: string, options: any, retry?: number }): Promise<PlayPoolItem> {
     try {
 
         const textMD5 = MD5Util.getMd5(text)
@@ -242,7 +250,7 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
-        const outputPath = path.join(outputDir, `${textMD5}.m4a`);
+        const outputPath = path.join(outputDir, `${textMD5}.mp3`);
 
         if (fs.existsSync(outputPath)) {
             // get absolute path
@@ -281,6 +289,9 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
         }
     } catch (e) {
         console.log("e", e)
+        if (retry < 3) {
+            return await openaiTTS({ text, options, retry: retry + 1 })
+        }
         return {
             path: "",
             text: text
@@ -288,40 +299,45 @@ export async function openaiTTS({ text, options }: { text: string, options: any 
     }
 }
 
-export function edgeTTS({ text, options }: { text: string, options: any }) {
-    return new Promise<PlayPoolItem>(async (resolve, reject) => {
-        try {
+export async function edgeTTS({ text, options, retry = 0 }: { text: string, options: any, retry?: number }) {
+    try {
 
-            const textMD5 = MD5Util.getMd5(text)
-            // import at the top of the file
+        const textMD5 = MD5Util.getMd5(text)
+        // import at the top of the file
 
-            let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
+        let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
 
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, { recursive: true });
-            }
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
 
-            const outputPath = path.join(outputDir, `${textMD5}.mp3`);
+        const outputPath = path.join(outputDir, `${textMD5}.mp3`);
 
-            if (fs.existsSync(outputPath)) {
-                // get absolute path
-                resolve({
-                    path: outputPath,
-                    text: text
-                })
-                return;
-            }
-            // Instantiate EdgeSpeechTTS
-            const tts = new EdgeTTS()
-            await tts.ttsPromise(text, outputPath)
-            resolve({
+        if (fs.existsSync(outputPath)) {
+            // get absolute path
+            return {
                 path: outputPath,
                 text: text
-            })
-        } catch (error) {
-            reject(error)
+            }
         }
-    });
+        // Instantiate EdgeSpeechTTS
+        const tts = new EdgeTTS()
+        await tts.ttsPromise(text, outputPath)
+        return {
+            path: outputPath,
+            text: text
+        }
+    } catch (error) {
+        console.log("error", error)
+        if (retry < 3) {
+            return await edgeTTS({ text, options, retry: retry + 1 })
+        }
+        return {
+            path: "",
+            text: text
+        }
+
+    }
 }
 
 
@@ -352,14 +368,11 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
                     processed: false
                 })
                 speakSentence(text, options).then(async (item) => {
-                    console.log("item", item)
                     if (item && item.path && item.path.trim() !== "") {
 
-                        console.log("item begin", item.text)
                         addToPlayPool(item);
                         playFromPlayPool().then()
                     } else {
-                        console.log("item begin2", item.text)
                         let audioPath = playPool.find((p) => p.text === text);
                         if (audioPath) {
                             audioPath.processed = true

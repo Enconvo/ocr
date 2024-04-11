@@ -27,7 +27,7 @@ export default async function main(req: Request) {
             });
         }
 
-        speak({ text: translateText, lang: sourceLang, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: options });
+        await speak({ text: translateText, lang: sourceLang, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: options });
 
         const actions: ActionProps[] = [
             Action.PlayAudio(translateText, "Play Again", false, {
