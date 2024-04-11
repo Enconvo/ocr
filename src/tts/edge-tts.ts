@@ -165,7 +165,7 @@ let playPool: PlayPoolItem[] = [];
 
 // Function to add to play pool
 function addToPlayPool(item: PlayPoolItem): void {
-    console.log("addToPlayPool", item.text)
+    // console.log("addToPlayPool", item.text)
     const poolItem = playPool.find((p) => p.text === item.text)
     if (poolItem) {
         poolItem.path = item.path
@@ -182,19 +182,18 @@ async function playFromPlayPool(): Promise<void> {
     if (!isPlaying && unprocessedItems.length > 0) {
 
         let audioPath = playPool.find((p) => !p.processed);
-        // AudioPlayer.show();
+        AudioPlayer.show();
         // console.log("play", "begin", audioPath?.text, audioPath?.path)
 
         isPlaying = true;
         if (audioPath && audioPath.path && fs.existsSync(audioPath.path)) {
-            console.log("play", "playing", audioPath?.text)
+            // console.log("play", "playing", audioPath?.text)
             audioPath.path && await AudioPlayer.play(audioPath.path);
-            // await sound.play(audioPath.path);
 
             audioPath.processed = true;
-            console.log("play", "end", audioPath?.text)
+            // console.log("play", "end", audioPath?.text)
             audioPath = playPool.find((p) => !p.processed);
-            console.log("play", "end2", audioPath)
+            // console.log("play", "end2", audioPath)
         }
         isPlaying = false;
         audioPath = playPool.find((p) => !p.processed);
@@ -204,9 +203,9 @@ async function playFromPlayPool(): Promise<void> {
         }
     }
     unprocessedItems = playPool.filter((item) => { return !item.processed })
-    console.log("play", "after begin", unprocessedItems.length)
+    // console.log("play", "after begin", unprocessedItems.length)
     if (unprocessedItems.length <= 0) {
-        // AudioPlayer.hide();
+        AudioPlayer.hide();
     }
 }
 
