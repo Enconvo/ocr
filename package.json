@@ -142,12 +142,9 @@
   ],
   "dependencies": {
     "@enconvo/api": "/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
-    "audio-loader": "^1.0.3",
-    "audio-play": "^2.3.1",
     "axios": "^1.4.0",
     "node-edge-tts": "^1.2.2",
-    "openai": "^4.33.0",
-    "sound-play": "^1.1.0"
+    "openai": "^4.33.0"
   },
   "devDependencies": {
     "@types/node": "^18.17.14",

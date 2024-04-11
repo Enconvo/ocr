@@ -7,11 +7,6 @@ import { promisify } from 'util';
 import axios from "axios";
 import { Buffer } from 'buffer';
 import { EdgeTTS } from 'node-edge-tts'
-
-import sound from "sound-play";
-import play from 'audio-play';
-import load from 'audio-loader';
-
 const trustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 
 // https://github.com/microsoft/cognitive-services-speech-sdk-js/blob/e6faf6b7fc1febb45993b940617719e8ed1358b2/src/sdk/SpeechSynthesizer.ts#L216
@@ -311,7 +306,8 @@ export async function edgeTTS({ text, options, retry = 0 }: { text: string, opti
             fs.mkdirSync(outputDir, { recursive: true });
         }
 
-        const outputPath = path.join(outputDir, `${textMD5}.mp3`);
+        const outputPath = path.join(outputDir, `${textMD5}`);
+        // const outputPath = path.join(outputDir, `${textMD5}.mp3`);
 
         if (fs.existsSync(outputPath)) {
             // get absolute path
@@ -320,6 +316,8 @@ export async function edgeTTS({ text, options, retry = 0 }: { text: string, opti
                 text: text
             }
         }
+
+
         // Instantiate EdgeSpeechTTS
         const tts = new EdgeTTS()
         await tts.ttsPromise(text, outputPath)
