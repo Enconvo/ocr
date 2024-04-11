@@ -36,6 +36,7 @@ export const langCode2TTSLang: Record<string, string> = {
 
 
 export async function speak({ text, lang, stream, streamEnd, streamStart, save, options }: SpeakOptions) {
+
     const settings = {
         tts: {
             provider: "EdgeTTS",
@@ -56,8 +57,6 @@ export async function speak({ text, lang, stream, streamEnd, streamStart, save, 
 
     return edgeSpeak({
         text,
-        lang: langTag,
-        voice: voiceCfg?.voice,
         stream: stream,
         streamEnd: streamEnd,
         streamStart: streamStart,

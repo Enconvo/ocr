@@ -3,7 +3,7 @@
   "name": "tts",
   "version": "1.1.9",
   "description": "Text to Speech",
-  "title": "Text to Speech (TTS) services providers",
+  "title": "Speak Content",
   "icon": "icon.png",
   "author": "EnconvoAI",
   "categories": [
@@ -15,7 +15,7 @@
   "commands": [
     {
       "name": "read_aloud",
-      "title": "Read Aloud With Edge TTS",
+      "title": "Edge TTS",
       "description": "Read Aloud With Edge TTS",
       "icon": "azure_icon.png",
       "mode": "no-view",
@@ -31,12 +31,12 @@
       ],
       "preferences": [
         {
-          "name": "hotkey",
-          "description": "The hotkey used to trigger the command",
-          "type": "hotkey",
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
           "required": false,
-          "default": "Option+T",
-          "title": "Hotkey"
+          "default": "default",
+          "title": "TTS Provider"
         }
       ]
     },

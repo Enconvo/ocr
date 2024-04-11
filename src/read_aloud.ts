@@ -5,7 +5,7 @@ import { speak } from "@/tts/index.js";
 export default async function main(req: Request) {
     try {
         const { options } = await req.json()
-        const { text, context } = options
+        const { text, context, tts_providers } = options
 
         let translateText = text || context || options.stream !== true && await Clipboard.selectedText();
 
@@ -27,7 +27,7 @@ export default async function main(req: Request) {
             });
         }
 
-        await speak({ text: translateText, lang: sourceLang, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: options });
+        await speak({ text: translateText, lang: sourceLang, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: tts_providers });
 
         const actions: ActionProps[] = [
             Action.PlayAudio(translateText, "Play Again", false, {

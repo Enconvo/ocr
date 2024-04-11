@@ -1,12 +1,13 @@
 import { SpeakOptions } from "@/tts/types.js";
 import * as fs from "fs";
-import { AudioPlayer, MD5Util, environment } from "@enconvo/api";
+import { AudioPlayer, MD5Util, ServiceProvider, environment } from "@enconvo/api";
 import * as path from "path";
 import { writeFile } from 'fs';
 import { promisify } from 'util';
 import axios from "axios";
 import { Buffer } from 'buffer';
 import { EdgeTTS } from 'node-edge-tts'
+import { TTSProviderBase } from "@/tts_provider.ts";
 const trustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 
 // https://github.com/microsoft/cognitive-services-speech-sdk-js/blob/e6faf6b7fc1febb45993b940617719e8ed1358b2/src/sdk/SpeechSynthesizer.ts#L216
@@ -213,17 +214,12 @@ async function playFromPlayPool(): Promise<void> {
 export function speakSentence(text: string, options: any) {
 
     return new Promise<PlayPoolItem>(async (resolve) => {
-
-        const commandName = options.commandName || environment.commandName
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         try {
-            if (commandName === "read_aloud") {
-                const newPath = await edgeTTS({ text, options })
-                resolve(newPath)
-            } else if (commandName === "openai") {
-                const newPath = await openaiTTS({ text, options })
-                resolve(newPath)
-            }
+            const ttsProvider: TTSProviderBase = ServiceProvider.load(options)
+            const newPath = await ttsProvider.speak(text)
+            console.log("newPath", newPath)
+            resolve(newPath)
         } catch (error) {
             console.log("error", error)
             resolve({
@@ -293,50 +289,6 @@ export async function openaiTTS({ text, options, retry = 0 }: { text: string, op
     }
 }
 
-export async function edgeTTS({ text, options, retry = 0 }: { text: string, options: any, retry?: number }) {
-    try {
-
-        const textMD5 = MD5Util.getMd5(text)
-        // import at the top of the file
-
-        let outputDir = `${environment.cachePath}/tts/${environment.commandName}/${options.voice}`
-
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-
-        const outputPath = path.join(outputDir, `${textMD5}`);
-        // const outputPath = path.join(outputDir, `${textMD5}.mp3`);
-
-        if (fs.existsSync(outputPath)) {
-            // get absolute path
-            return {
-                path: outputPath,
-                text: text
-            }
-        }
-
-
-        // Instantiate EdgeSpeechTTS
-        const tts = new EdgeTTS()
-        await tts.ttsPromise(text, outputPath)
-        return {
-            path: outputPath,
-            text: text
-        }
-    } catch (error) {
-        console.log("error", error)
-        if (retry < 3) {
-            return await edgeTTS({ text, options, retry: retry + 1 })
-        }
-        return {
-            path: "",
-            text: text
-        }
-
-    }
-}
-
 
 let tmpStreamPlayPool: string[] = [];
 
@@ -344,7 +296,7 @@ let tmpStreamPlayPool: string[] = [];
 // Function to play from play pool
 
 
-export async function speak({ text, voice, stream = false, streamEnd = true, streamStart = false, options = {} }: EdgeTTSOptions) {
+export async function speak({ text, stream = false, streamEnd = true, streamStart = false, options = {} }: EdgeTTSOptions) {
 
     if (stream) {
         if (streamStart) {
@@ -385,7 +337,6 @@ export async function speak({ text, voice, stream = false, streamEnd = true, str
         isPlaying = false
         const textArr = AudioPlayer.splitSentence(text, 100)
         console.log("textArr", textArr)
-        AudioPlayer.show()
 
         for (const text of textArr) {
             try {
