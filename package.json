@@ -3,7 +3,7 @@
   "name": "tts",
   "version": "1.1.9",
   "description": "Text to Speech",
-  "title": "Speak Content",
+  "title": "TTS",
   "icon": "icon.png",
   "author": "EnconvoAI",
   "categories": [
@@ -59,84 +59,12 @@
       ],
       "preferences": [
         {
-          "name": "openAIApiKey",
-          "description": "OpenAI api key",
-          "type": "password",
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
           "required": false,
-          "title": "OpenAI Api Key",
-          "default": "",
-          "defaultProxy": "llm|chat_open_ai",
-          "placeholder": "OpenAI Api Key"
-        },
-        {
-          "name": "baseUrl",
-          "description": "OpenAI api base url",
-          "type": "textfield",
-          "required": false,
-          "title": "OpenAI Api Base Url",
-          "default": "",
-          "defaultProxy": "llm|chat_open_ai",
-          "placeholder": "OpenAI Api Base Url"
-        },
-        {
-          "name": "modelName",
-          "description": "The model to TTS.",
-          "type": "dropdown",
-          "required": false,
-          "title": "Model Name",
-          "default": "tts-1",
-          "data": [
-            {
-              "title": "tts-1",
-              "value": "tts-1"
-            },
-            {
-              "title": "tts-1-hd",
-              "value": "tts-1-hd"
-            }
-          ]
-        },
-        {
-          "name": "voice",
-          "description": "The voice to TTS.",
-          "type": "dropdown",
-          "required": false,
-          "title": "Voice",
-          "default": "alloy",
-          "data": [
-            {
-              "title": "alloy",
-              "value": "alloy"
-            },
-            {
-              "title": "echo",
-              "value": "echo"
-            },
-            {
-              "title": "fable",
-              "value": "fable"
-            },
-            {
-              "title": "onyx",
-              "value": "onyx"
-            },
-            {
-              "title": "nova",
-              "value": "nova"
-            },
-            {
-              "title": "shimmer",
-              "value": "shimmer"
-            }
-          ]
-        },
-        {
-          "name": "hotkey",
-          "description": "The hotkey used to trigger the command",
-          "type": "hotkey",
-          "required": false,
-          "default": "",
-          "title": "Hotkey"
+          "default": "openai_tts_provider",
+          "title": "TTS Provider"
         }
       ]
     }
