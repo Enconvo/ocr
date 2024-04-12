@@ -123,6 +123,34 @@
           "title": "TTS Provider"
         }
       ]
+    },
+    {
+      "name": "elevenlabs_tts",
+      "title": "ElevenLabs TTS",
+      "description": "Read Aloud With ElevenLabs TTS",
+      "icon": "elevenlabs.png",
+      "mode": "no-view",
+      "aiPlugin": true,
+      "targetCommand": "tts/read_aloud",
+      "params": [
+        {
+          "name": "text",
+          "description": "The text to be converted to speech",
+          "type": "string",
+          "required": true,
+          "default": ""
+        }
+      ],
+      "preferences": [
+        {
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "elevenlabs_tts_provider",
+          "title": "TTS Provider"
+        }
+      ]
     }
   ],
   "dependencies": {

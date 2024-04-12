@@ -73,8 +73,8 @@ export function speakSentence(text: string) {
     return new Promise<PlayPoolItem>(async (resolve) => {
         // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         try {
-            const newPath = await ttsProvider.speak(text)
-            // console.log("newPath", newPath)
+            const newPath = await ttsProvider.speak(text, "mp3")
+            console.log("newPath", newPath)
             resolve(newPath)
         } catch (error) {
             console.log("error", error)
@@ -107,7 +107,7 @@ export async function speak({ text, stream = false, streamEnd = true, streamStar
 
         for (const text of textArr) {
             if (!tmpStreamPlayPool.includes(text)) {
-                // console.log("newText", text)
+                console.log("newText", text)
                 tmpStreamPlayPool.push(text);
                 playPool.push({
                     text,
@@ -134,7 +134,7 @@ export async function speak({ text, stream = false, streamEnd = true, streamStar
         playPool = [];
         isPlaying = false
         const textArr = AudioPlayer.splitSentence(text, 100)
-        // console.log("textArr", textArr)
+        console.log("textArr", textArr)
 
         for (const text of textArr) {
             try {
