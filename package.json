@@ -47,6 +47,7 @@
       "icon": "openai.png",
       "mode": "no-view",
       "aiPlugin": true,
+      "targetCommand": "tts/read_aloud",
       "params": [
         {
           "name": "text",
