@@ -6,7 +6,6 @@ export default async function main(req: Request) {
     try {
         const { options } = await req.json()
         const { text, context, tts_providers, new_tts_providers } = options
-        console.log("options--", options)
 
         let translateText = text || context || options.stream !== true && await Clipboard.selectedText();
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "tts",
-  "version": "1.1.9",
+  "version": "1.1.100",
   "description": "Text to Speech",
   "title": "TTS",
   "icon": "icon.png",
@@ -15,9 +15,9 @@
   "commands": [
     {
       "name": "read_aloud",
-      "title": "Edge TTS",
-      "description": "Read Aloud With Edge TTS",
-      "icon": "azure_icon.png",
+      "title": "TTS",
+      "description": "Read Aloud With TTS Providers",
+      "icon": "icon.png",
       "mode": "no-view",
       "aiPlugin": true,
       "params": [
@@ -36,6 +36,62 @@
           "type": "extension",
           "required": false,
           "default": "default",
+          "title": "TTS Provider"
+        }
+      ]
+    },
+    {
+      "name": "edge_tts",
+      "title": "Edge TTS",
+      "description": "Read Aloud With Edge TTS",
+      "icon": "edge_tts.jpg",
+      "mode": "no-view",
+      "targetCommand": "tts/read_aloud",
+      "aiPlugin": true,
+      "params": [
+        {
+          "name": "text",
+          "description": "The text to be read aloud.",
+          "type": "string",
+          "required": true,
+          "default": ""
+        }
+      ],
+      "preferences": [
+        {
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "edge_tts_provider",
+          "title": "TTS Provider"
+        }
+      ]
+    },
+    {
+      "name": "mirosoft_tts",
+      "title": "Microsoft Azure TTS",
+      "description": "Read Aloud With Microsoft Azure TTS",
+      "icon": "azure_icon.png",
+      "mode": "no-view",
+      "targetCommand": "tts/read_aloud",
+      "aiPlugin": true,
+      "params": [
+        {
+          "name": "text",
+          "description": "The text to be read aloud.",
+          "type": "string",
+          "required": true,
+          "default": ""
+        }
+      ],
+      "preferences": [
+        {
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "mirosoft_tts_provider",
           "title": "TTS Provider"
         }
       ]
