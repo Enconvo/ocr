@@ -27,7 +27,9 @@ export default async function main(req: Request) {
         await speak({ text: translateText, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: new_tts_providers || tts_providers });
 
         const actions: ActionProps[] = [
-            Action.PlayAudio(translateText, "Play Again", false),
+            Action.PlayAudio({
+                content: translateText, title: "Play Again", closeMainWindow: false
+            }),
             Action.PauseResumeAudio()
         ]
 

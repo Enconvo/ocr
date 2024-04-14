@@ -154,7 +154,7 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
+    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
     "axios": "^1.4.0",
     "node-edge-tts": "^1.2.2",
     "openai": "^4.33.0"

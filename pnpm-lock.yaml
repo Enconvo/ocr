@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@enconvo/api':
-    specifier: /Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api
+    specifier: link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api
     version: link:../../enconvo.nodejs/enconvo_api
   axios:
     specifier: ^1.4.0

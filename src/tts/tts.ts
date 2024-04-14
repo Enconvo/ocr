@@ -71,9 +71,8 @@ async function playFromPlayPool(): Promise<void> {
 export function speakSentence(text: string) {
 
     return new Promise<PlayPoolItem>(async (resolve) => {
-        // const newPath = await edge(text, lang, outputPath, voice, rate, volume)
         try {
-            const newPath = await ttsProvider.speak(text, "mp3")
+            const newPath = await ttsProvider.speak(text)
             console.log("newPath", newPath)
             resolve(newPath)
         } catch (error) {
