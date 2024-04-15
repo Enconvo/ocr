@@ -1,6 +1,5 @@
 // Usage
-import { Action, ActionProps, ChatHistory, Clipboard, res, uuid } from "@enconvo/api";
-import { speak } from "@/tts/tts.ts";
+import { Action, ActionProps, ChatHistory, Clipboard, TTS, res, uuid } from "@enconvo/api";
 
 export default async function main(req: Request) {
     try {
@@ -24,13 +23,14 @@ export default async function main(req: Request) {
             });
         }
 
-        await speak({ text: translateText, stream: options.stream, streamEnd: options.streamEnd, streamStart: options.streamStart, options: new_tts_providers || tts_providers });
+        await TTS.speak({ text: translateText, stream: options.stream, streamEnd: options.streamEnd, ttsOptions: new_tts_providers || tts_providers });
 
         const actions: ActionProps[] = [
             Action.PlayAudio({
                 content: translateText, title: "Play Again", closeMainWindow: false
             }),
-            Action.PauseResumeAudio()
+            Action.PauseResumeAudio(),
+            Action.SaveAsAudioFile({ content: translateText })
         ]
 
         const output = {

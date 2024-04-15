@@ -154,17 +154,17 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
-    "axios": "^1.4.0",
+    "@enconvo/api": "^0.1.107",
+    "axios": "^1.6.8",
     "node-edge-tts": "^1.2.2",
-    "openai": "^4.33.0"
+    "openai": "^4.33.1"
   },
   "devDependencies": {
-    "@types/node": "^18.17.14",
-    "eslint": "^8.33.0",
-    "prettier": "^2.8.3",
+    "@types/node": "^18.19.31",
+    "eslint": "^8.57.0",
+    "prettier": "^2.8.8",
     "tsup": "^7.2.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.4.5"
   },
   "scripts": {
     "lint": "eslint src",
