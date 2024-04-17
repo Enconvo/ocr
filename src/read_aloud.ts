@@ -44,9 +44,11 @@ export default async function main(req: Request) {
         });
     }
 
+    let currentContent = ''
     await TTS.speak({
         text: translateText, stream: options.stream, streamEnd: options.streamEnd, ttsOptions: new_tts_providers || tts_providers, playCallBack: async (data: PlayPoolItem) => {
             console.log("playCallBack", data)
+            currentContent = data.text
             await res.write({
                 content: data.text,
                 overwriteText: true,
@@ -63,7 +65,7 @@ export default async function main(req: Request) {
     ]
 
     const output = {
-        content: docContent ? "Reading Document " : translateText,
+        content: currentContent,
         actions: actions
     }
 
