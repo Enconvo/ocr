@@ -41,6 +41,24 @@
       ]
     },
     {
+      "name": "play_audio_book",
+      "title": "Play Document By TTS",
+      "description": "Play Document By TTS",
+      "icon": "icon.png",
+      "mode": "no-view",
+      "targetCommand": "tts/read_aloud",
+      "preferences": [
+        {
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "default",
+          "title": "TTS Provider"
+        }
+      ]
+    },
+    {
       "name": "edge_tts",
       "title": "Edge TTS",
       "description": "Read Aloud With Edge TTS",
