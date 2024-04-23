@@ -4,6 +4,7 @@ import { Action, ActionProps, ChatHistory, Clipboard, PlayPoolItem, ServiceProvi
 export default async function main(req: Request) {
     const { options } = await req.json()
     const { text, context, tts_providers, new_tts_providers } = options
+    console.log("options", options)
 
     let filePaths: string[] = options.draggedContext || []
 
