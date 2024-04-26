@@ -4,7 +4,6 @@ import { Action, ActionProps, ChatHistory, Clipboard, PlayPoolItem, ServiceProvi
 export default async function main(req: Request) {
     const { options } = await req.json()
     const { text, context, tts_providers, new_tts_providers } = options
-    console.log("options", options)
 
     let filePaths: string[] = options.draggedContext || []
 
@@ -24,6 +23,7 @@ export default async function main(req: Request) {
             commandName: "load_docs"
         })
         const docs: any[] = await loader.load({ docs: textFilePaths })
+        console.log("docs", docs)
         docContent = docs.map((doc: any) => {
             return doc.pageContent
         }).join("\n\n")
