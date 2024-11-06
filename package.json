@@ -24,11 +24,11 @@
         "text"
       ],
       "parameters": {
-        "input_text":{
+        "input_text": {
           "type": "string",
           "description": "The text to be translated"
         },
-        "selection_text":{
+        "selection_text": {
           "type": "string",
           "description": "The selection text to be translated"
         }
@@ -46,11 +46,20 @@
     },
     {
       "name": "play_audio_book",
-      "title": "Play Document By Text-to-speech",
-      "description": "Play Document By TTS",
+      "title": "Read Aloud EBook",
+      "description": "Read Aloud EBook",
       "icon": "icon.png",
       "mode": "no-view",
       "targetCommand": "tts/read_aloud",
+      "parameters": {
+        "context_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Context files"
+        }
+      },
       "preferences": [
         {
           "name": "tts_providers",
@@ -71,11 +80,11 @@
       "targetCommand": "tts/read_aloud",
       "aiPlugin": true,
       "parameters": {
-        "input_text":{
+        "input_text": {
           "type": "string",
           "description": "The text to be translated"
         },
-        "selection_text":{
+        "selection_text": {
           "type": "string",
           "description": "The selection text to be translated"
         }
@@ -103,11 +112,11 @@
       ],
       "aiPlugin": true,
       "parameters": {
-        "input_text":{
+        "input_text": {
           "type": "string",
           "description": "The text to be translated"
         },
-        "selection_text":{
+        "selection_text": {
           "type": "string",
           "description": "The selection text to be translated"
         }
@@ -187,7 +196,7 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.125",
+    "@enconvo/api": "^0.1.138",
     "axios": "^1.6.8",
     "node-edge-tts": "^1.2.2",
     "openai": "^4.33.1"

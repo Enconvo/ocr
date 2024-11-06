@@ -1,27 +1,29 @@
 // Usage
-import { Action, ActionProps, ChatHistory, Clipboard, PlayPoolItem, ServiceProvider, TTS, isTextFile, res, uuid } from "@enconvo/api";
+import { Action, ActionProps, ChatHistory, Clipboard, FileUtil, PlayPoolItem, ServiceProvider, TTS, res, uuid } from "@enconvo/api";
 
 export default async function main(req: Request) {
     const { options } = await req.json()
-    const { input_text, selection_text, context, tts_providers, new_tts_providers } = options
+    const { input_text, selection_text, context_files, context, tts_providers, new_tts_providers } = options
 
-    let filePaths: string[] = options.draggedContext || []
+    let filePaths: string[] = context_files || []
 
     const textFilePaths = filePaths.filter((filePath) => {
-        return isTextFile(filePath)
+        return FileUtil.isTextFile(filePath)
     }).map((filePath) => {
         return {
             id: uuid(),
-            filePath,
+            filePath: filePath.replace("file://", ""),
             type: "file"
         }
     })
     let docContent = null
     if (textFilePaths.length > 0) {
+
         const loader: any = await ServiceProvider.load({
             extensionName: "chat_with_doc",
             commandName: "load_docs"
         })
+
         const docs: any[] = await loader.load({ docs: textFilePaths })
         console.log("docs", docs)
         docContent = docs.map((doc: any) => {
