@@ -1,7 +1,7 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "tts",
-  "version": "1.1.103",
+  "version": "1.1.106",
   "description": "Text to Speech",
   "title": "TTS",
   "icon": "icon.png",
@@ -15,20 +15,24 @@
   "commands": [
     {
       "name": "read_aloud",
-      "title": "TTS",
+      "title": "Read Aloud",
       "description": "Read Aloud With TTS Providers",
       "icon": "icon.png",
       "mode": "no-view",
       "aiPlugin": true,
-      "params": [
-        {
-          "name": "text",
-          "description": "The text to be read aloud.",
-          "type": "string",
-          "required": true,
-          "default": ""
-        }
+      "accepts": [
+        "text"
       ],
+      "parameters": {
+        "input_text":{
+          "type": "string",
+          "description": "The text to be translated"
+        },
+        "selection_text":{
+          "type": "string",
+          "description": "The selection text to be translated"
+        }
+      },
       "preferences": [
         {
           "name": "tts_providers",
@@ -42,7 +46,7 @@
     },
     {
       "name": "play_audio_book",
-      "title": "Play Document By TTS",
+      "title": "Play Document By Text-to-speech",
       "description": "Play Document By TTS",
       "icon": "icon.png",
       "mode": "no-view",
@@ -60,21 +64,22 @@
     },
     {
       "name": "edge_tts",
-      "title": "Edge TTS",
+      "title": "Edge Text-to-speech",
       "description": "Read Aloud With Edge TTS",
       "icon": "edge_tts.jpg",
       "mode": "no-view",
       "targetCommand": "tts/read_aloud",
       "aiPlugin": true,
-      "params": [
-        {
-          "name": "text",
-          "description": "The text to be read aloud.",
+      "parameters": {
+        "input_text":{
           "type": "string",
-          "required": true,
-          "default": ""
+          "description": "The text to be translated"
+        },
+        "selection_text":{
+          "type": "string",
+          "description": "The selection text to be translated"
         }
-      ],
+      },
       "preferences": [
         {
           "name": "tts_providers",
@@ -88,21 +93,25 @@
     },
     {
       "name": "mirosoft_tts",
-      "title": "Microsoft Azure TTS",
+      "title": "Microsoft Azure Text-to-speech",
       "description": "Read Aloud With Microsoft Azure TTS",
       "icon": "azure_icon.png",
       "mode": "no-view",
       "targetCommand": "tts/read_aloud",
-      "aiPlugin": true,
-      "params": [
-        {
-          "name": "text",
-          "description": "The text to be read aloud.",
-          "type": "string",
-          "required": true,
-          "default": ""
-        }
+      "accepts": [
+        "text"
       ],
+      "aiPlugin": true,
+      "parameters": {
+        "input_text":{
+          "type": "string",
+          "description": "The text to be translated"
+        },
+        "selection_text":{
+          "type": "string",
+          "description": "The selection text to be translated"
+        }
+      },
       "preferences": [
         {
           "name": "tts_providers",
@@ -116,12 +125,15 @@
     },
     {
       "name": "openai",
-      "title": "OpenAI TTS",
+      "title": "OpenAI Text-to-speech",
       "description": "Read Aloud With OpenAI TTS",
       "icon": "openai.png",
       "mode": "no-view",
       "aiPlugin": true,
       "targetCommand": "tts/read_aloud",
+      "accepts": [
+        "text"
+      ],
       "params": [
         {
           "name": "text",
@@ -144,12 +156,15 @@
     },
     {
       "name": "elevenlabs_tts",
-      "title": "ElevenLabs TTS",
+      "title": "ElevenLabs Text-to-speech",
       "description": "Read Aloud With ElevenLabs TTS",
       "icon": "elevenlabs.png",
       "mode": "no-view",
       "aiPlugin": true,
       "targetCommand": "tts/read_aloud",
+      "accepts": [
+        "text"
+      ],
       "params": [
         {
           "name": "text",

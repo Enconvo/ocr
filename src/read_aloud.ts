@@ -3,7 +3,7 @@ import { Action, ActionProps, ChatHistory, Clipboard, PlayPoolItem, ServiceProvi
 
 export default async function main(req: Request) {
     const { options } = await req.json()
-    const { text, context, tts_providers, new_tts_providers } = options
+    const { input_text, selection_text, context, tts_providers, new_tts_providers } = options
 
     let filePaths: string[] = options.draggedContext || []
 
@@ -29,13 +29,9 @@ export default async function main(req: Request) {
         }).join("\n\n")
     }
 
-    let translateText = docContent || text || context || options.stream !== true && await Clipboard.selectedText();
+    let translateText = docContent || input_text || context || selection_text || options.stream !== true && await Clipboard.selectedText();
 
     const requestId = uuid()
-    // 如果translateText中有换行符，需要添加> 符号
-    if (translateText) {
-        await res.context({ id: requestId, role: "human", content: `${docContent ? 'Read Aloud This Document' : translateText}` })
-    }
 
     if (options.stream !== true) {
         await ChatHistory.saveChatMessages({
