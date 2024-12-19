@@ -1,8 +1,8 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "tts",
-  "version": "1.1.107",
-  "description": "Text to Speech",
+  "version": "1.1.108",
+  "description": "Text to Speech Extension",
   "title": "TTS",
   "icon": "icon.png",
   "author": "EnconvoAI",
@@ -19,10 +19,6 @@
       "description": "Read Aloud With TTS Providers",
       "icon": "icon.png",
       "mode": "no-view",
-      "aiPlugin": true,
-      "accepts": [
-        "text"
-      ],
       "parameters": {
         "input_text": {
           "type": "string",
@@ -58,6 +54,32 @@
             "type": "string"
           },
           "description": "Context files"
+        }
+      },
+      "preferences": [
+        {
+          "name": "tts_providers",
+          "description": "The TTS provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "default",
+          "title": "TTS Provider"
+        }
+      ]
+    },
+    {
+      "name": "convert_srt_to_audio_file",
+      "title": "Convert Srt To Audio File",
+      "description": "Convert Srt To Audio File",
+      "icon": "icon.png",
+      "mode": "no-view",
+      "parameters": {
+        "context_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The srt files to be converted to audio"
         }
       },
       "preferences": [
@@ -196,10 +218,7 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.138",
-    "axios": "^1.6.8",
-    "node-edge-tts": "^1.2.2",
-    "openai": "^4.33.1"
+    "@enconvo/api": "^0.1.153"
   },
   "devDependencies": {
     "@types/node": "^18.19.31",
