@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@enconvo/api':
-        specifier: ^0.1.153
-        version: 0.1.153
+        specifier: ^0.1.161
+        version: 0.1.161
     devDependencies:
       '@types/node':
         specifier: ^18.19.31
@@ -34,8 +34,8 @@ packages:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
 
-  '@enconvo/api@0.1.153':
-    resolution: {integrity: sha512-1Vcq79YxS92GzQRCCR4KT3CC7nrhiWozmYstlcHAuZv9wQfILwOlWOL/0YOwza3St7ACW+sJyS3v4WZVBYaVig==}
+  '@enconvo/api@0.1.161':
+    resolution: {integrity: sha512-oyCp0N/0Grc1T3L+MSOJF8At2UVwe538DkI1DpuOcY6xPprIh+pbh8IuQDspuTl1GXQhkw6RwZWCD0DLV0O4gw==}
     hasBin: true
 
   '@esbuild/android-arm64@0.18.20':
@@ -910,7 +910,7 @@ snapshots:
 
   '@aashutoshrathi/word-wrap@1.2.6': {}
 
-  '@enconvo/api@0.1.153': {}
+  '@enconvo/api@0.1.161': {}
 
   '@esbuild/android-arm64@0.18.20':
     optional: true

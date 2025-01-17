@@ -31,7 +31,7 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         }).join("\n\n")
     }
 
-    let translateText = docContent || input_text || context || selection_text || (await Clipboard.selectedText())
+    let translateText = docContent || input_text || selection_text || (await Clipboard.selectedText())
 
     let currentContent = ''
 
