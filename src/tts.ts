@@ -28,7 +28,7 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         type: "messages",
         messages: [
             BaseChatMessage.assistant([
-                ChatMessageContent.file({ url: `file://${ttsItem.path}` })
+                ChatMessageContent.audio({ url: `file://${ttsItem.path}` })
             ])
 
         ],
