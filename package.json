@@ -257,7 +257,7 @@
       "commandType": "deprecated",
       "mode": "no-view",
       "showInCommandList": false,
-      "targetCommand": "tts/read_aloud",
+      "targetCommand": "tts|read_aloud",
       "parameters": {
         "type": "object",
         "properties": {
@@ -317,7 +317,7 @@
       "description": "Read aloud text with Edge TTS",
       "icon": "edge_tts.jpg",
       "mode": "no-view",
-      "targetCommand": "tts/read_aloud",
+      "targetCommand": "tts|read_aloud",
       "preferences": [
         {
           "name": "tts_providers",
@@ -335,7 +335,7 @@
       "description": "Read aloud text with Microsoft TTS",
       "icon": "azure_icon.png",
       "mode": "no-view",
-      "targetCommand": "tts/read_aloud",
+      "targetCommand": "tts|read_aloud",
       "accepts": [
         "text"
       ],
@@ -356,7 +356,7 @@
       "description": "Read aloud text with OpenAI TTS",
       "icon": "openai.png",
       "mode": "no-view",
-      "targetCommand": "tts/read_aloud",
+      "targetCommand": "tts|read_aloud",
       "preferences": [
         {
           "name": "tts_providers",
@@ -374,7 +374,7 @@
       "description": "Read aloud text with ElevenLabs TTS",
       "icon": "elevenlabs.png",
       "mode": "no-view",
-      "targetCommand": "tts/read_aloud",
+      "targetCommand": "tts|read_aloud",
       "preferences": [
         {
           "name": "tts_providers",
