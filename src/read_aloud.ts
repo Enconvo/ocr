@@ -15,6 +15,7 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
             currentContent = data.text
         }
     })
+
     console.log("readAloudResult", readAloudResult.outputFile)
 
     const actions: ResponseAction[] = [
