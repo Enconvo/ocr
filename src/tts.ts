@@ -1,6 +1,6 @@
-import { Action, BaseChatMessage, ChatMessageContent, Clipboard, EnconvoResponse, RequestOptions, ResponseAction, TTSProvider } from "@enconvo/api";
+import { Action, BaseChatMessage, ChatMessageContent, Clipboard, Response, RequestOptions, ResponseAction, TTSProvider } from "@enconvo/api";
 
-export default async function main(req: Request): Promise<EnconvoResponse> {
+export default async function main(req: Request): Promise<Response> {
     const options: RequestOptions = await req.json()
     const { input_text, selection_text, user_input_text, output_dir, speed } = options
 
