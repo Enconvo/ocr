@@ -1,263 +1,24 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
-  "name": "tts",
-  "version": "1.1.111",
-  "description": "Text to Speech Extension",
-  "title": "TTS",
+  "name": "ocr_action",
+  "version": "0.0.1",
+  "description": "OCR Extension",
+  "title": "OCR",
   "icon": "icon.png",
   "author": "EnconvoAI",
   "categories": [
-    "Text To Speech"
+    "OCR"
   ],
-  "group": "tts",
+  "group": "ocr",
   "license": "MIT",
   "type": "module",
   "commands": [
     {
-      "name": "read_aloud",
-      "title": "Read Aloud",
-      "description": "Read aloud text with TTS providers",
+      "name": "ocr",
+      "title": "OCR",
+      "description": "Convert image to text",
       "icon": "icon.png",
       "mode": "no-view",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "user_input_text": {
-            "type": "string",
-            "description": "The text to be read aloud"
-          },
-          "speed": {
-            "type": "string",
-            "description": "The speed of speech for text-to-speech",
-            "enum": [
-              "0.25",
-              "0.3",
-              "0.35",
-              "0.4",
-              "0.45",
-              "0.5",
-              "0.55",
-              "0.6",
-              "0.65",
-              "0.7",
-              "0.75",
-              "0.8",
-              "0.85",
-              "0.9",
-              "0.95",
-              "1",
-              "1.05",
-              "1.1",
-              "1.15",
-              "1.2",
-              "1.25",
-              "1.3",
-              "1.35",
-              "1.4",
-              "1.45",
-              "1.5",
-              "1.55",
-              "1.6",
-              "1.65",
-              "1.7",
-              "1.75",
-              "1.8",
-              "1.85",
-              "1.9",
-              "1.95",
-              "2",
-              "2.05",
-              "2.1",
-              "2.15",
-              "2.2",
-              "2.25",
-              "2.3",
-              "2.35",
-              "2.4",
-              "2.45",
-              "2.5",
-              "2.55",
-              "2.6",
-              "2.65",
-              "2.7",
-              "2.75",
-              "2.8",
-              "2.85",
-              "2.9",
-              "2.95",
-              "3",
-              "3.05",
-              "3.1",
-              "3.15",
-              "3.2",
-              "3.25",
-              "3.3",
-              "3.35",
-              "3.4",
-              "3.45",
-              "3.5",
-              "3.55",
-              "3.6",
-              "3.65",
-              "3.7",
-              "3.75",
-              "3.8",
-              "3.85",
-              "3.9",
-              "3.95",
-              "4"
-            ]
-          },
-          "input_text": {
-            "type": "string",
-            "description": "The text to be read aloud"
-          },
-          "selection_text": {
-            "type": "string",
-            "description": "The selection text to be read aloud"
-          }
-        }
-      },
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "default",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "tts",
-      "title": "TTS(Text To Speech)",
-      "description": "Convert text to audio file using TTS providers",
-      "icon": "icon.png",
-      "mode": "no-view",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "user_input_text": {
-            "type": "string",
-            "description": "The text to be converted to audio file"
-          },
-          "speed": {
-            "type": "string",
-            "description": "The speed of speech for text-to-speech",
-            "enum": [
-              "0.25",
-              "0.3",
-              "0.35",
-              "0.4",
-              "0.45",
-              "0.5",
-              "0.55",
-              "0.6",
-              "0.65",
-              "0.7",
-              "0.75",
-              "0.8",
-              "0.85",
-              "0.9",
-              "0.95",
-              "1",
-              "1.05",
-              "1.1",
-              "1.15",
-              "1.2",
-              "1.25",
-              "1.3",
-              "1.35",
-              "1.4",
-              "1.45",
-              "1.5",
-              "1.55",
-              "1.6",
-              "1.65",
-              "1.7",
-              "1.75",
-              "1.8",
-              "1.85",
-              "1.9",
-              "1.95",
-              "2",
-              "2.05",
-              "2.1",
-              "2.15",
-              "2.2",
-              "2.25",
-              "2.3",
-              "2.35",
-              "2.4",
-              "2.45",
-              "2.5",
-              "2.55",
-              "2.6",
-              "2.65",
-              "2.7",
-              "2.75",
-              "2.8",
-              "2.85",
-              "2.9",
-              "2.95",
-              "3",
-              "3.05",
-              "3.1",
-              "3.15",
-              "3.2",
-              "3.25",
-              "3.3",
-              "3.35",
-              "3.4",
-              "3.45",
-              "3.5",
-              "3.55",
-              "3.6",
-              "3.65",
-              "3.7",
-              "3.75",
-              "3.8",
-              "3.85",
-              "3.9",
-              "3.95",
-              "4"
-            ]
-          },
-          "output_dir": {
-            "type": "string",
-            "description": "Directory to save the generated audio file"
-          },
-          "input_text": {
-            "type": "string",
-            "description": "The text to be read aloud"
-          },
-          "selection_text": {
-            "type": "string",
-            "description": "The selection text to be read aloud"
-          }
-        }
-      },
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "default",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "play_audio_book",
-      "title": "Read Aloud EBook",
-      "description": "Read Aloud EBook",
-      "icon": "icon.png",
-      "commandType": "deprecated",
-      "mode": "no-view",
-      "showInCommandList": false,
-      "targetCommand": "tts|read_aloud",
       "parameters": {
         "type": "object",
         "properties": {
@@ -267,122 +28,47 @@
               "type": "string"
             },
             "description": "Context files"
-          }
-        }
-      },
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "default",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "convert_srt_to_audio_file",
-      "title": "Convert Srt To Audio File",
-      "description": "Convert Srt To Audio File",
-      "icon": "icon.png",
-      "mode": "no-view",
-      "showInCommandList": false,
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "context_files": {
+          },
+          "image_files": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "description": "Image file paths for OCR, supports file:// protocol"
             },
-            "description": "The srt files to be converted to audio"
+            "description": "Image files for OCR"
           }
         }
       },
       "preferences": [
         {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
+          "name": "ocr_providers",
+          "description": "The OCR provider to use.",
           "type": "extension",
           "required": false,
           "default": "default",
-          "title": "TTS Provider"
+          "title": "OCR Provider"
         }
       ]
     },
     {
-      "name": "edge_tts",
-      "title": "Read Aloud With Edge TTS",
-      "description": "Read aloud text with Edge TTS",
-      "icon": "edge_tts.jpg",
+      "name": "silent_screenshot_ocr",
+      "title": "Silent Screenshot OCR",
+      "description": "Select the screen area for OCR and copy the OCR results to the clipboard.",
+      "icon": "icon.png",
       "mode": "no-view",
-      "targetCommand": "tts|read_aloud",
+      "runInBackground": true,
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      },
       "preferences": [
         {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
+          "name": "hotkey",
+          "description": "The hotkey used to trigger the command",
+          "type": "hotkey",
           "required": false,
-          "default": "edge_tts_provider",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "mirosoft_tts",
-      "title": "Read aloud text with Microsoft TTS",
-      "description": "Read aloud text with Microsoft TTS",
-      "icon": "azure_icon.png",
-      "mode": "no-view",
-      "targetCommand": "tts|read_aloud",
-      "accepts": [
-        "text"
-      ],
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "mirosoft_tts_provider",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "openai",
-      "title": "Read aloud with OpenAI TTS",
-      "description": "Read aloud text with OpenAI TTS",
-      "icon": "openai.png",
-      "mode": "no-view",
-      "targetCommand": "tts|read_aloud",
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "openai_tts_provider",
-          "title": "TTS Provider"
-        }
-      ]
-    },
-    {
-      "name": "elevenlabs_tts",
-      "title": "Read aloud with ElevenLabs TTS",
-      "description": "Read aloud text with ElevenLabs TTS",
-      "icon": "elevenlabs.png",
-      "mode": "no-view",
-      "targetCommand": "tts|read_aloud",
-      "preferences": [
-        {
-          "name": "tts_providers",
-          "description": "The TTS provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "elevenlabs_tts_provider",
-          "title": "TTS Provider"
+          "default": "Option+S",
+          "title": "Hotkey"
         }
       ]
     }
