@@ -71,6 +71,30 @@
           "title": "Hotkey"
         }
       ]
+    },
+    {
+      "name": "screenshot_ocr",
+      "title": "Screenshot OCR",
+      "description": "Select the screen area for OCR and show the OCR results in a smartbar window.",
+      "icon": "icon.png",
+      "mode": "no-view",
+      "runInBackground": true,
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "screenshot_translate",
+      "title": "Screenshot Translate",
+      "description": "Select the screen area for OCR and translate the OCR results",
+      "icon": "icon.png",
+      "mode": "no-view",
+      "runInBackground": true,
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
     }
   ],
   "dependencies": {
