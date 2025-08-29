@@ -1,17 +1,14 @@
-import { BaseChatMessage, ChatMessageContent, Response, RequestOptions, ResponseAction, OCRProvider, FileUtil, ScreenshotHelper, Clipboard, Toast, showToast, showHUD } from "@enconvo/api";
+import { EnconvoResponse, OCRProvider, ScreenshotHelper, Clipboard, showHUD, Command } from "@enconvo/api";
 
-interface OCRRequestParams extends RequestOptions {
-    context_files: string[]
-    image_files: string[]
-}
 
-export default async function main(req: Request): Promise<Response> {
-    const options: OCRRequestParams = await req.json()
-    console.log('ocr options', options)
+export default async function main(req: Request): Promise<EnconvoResponse> {
+    const options = await req.json()
+
 
     const { path } = await ScreenshotHelper.selectScreenArea()
-
+    console.log('path', path)
     const ocrProvider = await OCRProvider.fromEnv()
+    console.log('ocrProvider', ocrProvider)
 
     const ocrResult = await ocrProvider.ocr({
         image_url: path,
@@ -21,5 +18,5 @@ export default async function main(req: Request): Promise<Response> {
 
     await showHUD("OCR results copied to clipboard")
 
-    return Response.none()
+    return EnconvoResponse.none()
 }

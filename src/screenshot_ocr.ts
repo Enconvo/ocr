@@ -1,4 +1,4 @@
-import { Response, RequestOptions, OCRProvider, FileUtil, ScreenshotHelper, Clipboard, showHUD, SmartBar } from "@enconvo/api";
+import { Response, RequestOptions, OCRProvider, ScreenshotHelper, SmartBar } from "@enconvo/api";
 
 interface OCRRequestParams extends RequestOptions {
     context_files: string[]
