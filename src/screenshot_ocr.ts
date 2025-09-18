@@ -1,13 +1,13 @@
-import { Response, RequestOptions, OCRProvider, ScreenshotHelper, SmartBar } from "@enconvo/api";
+import { RequestOptions, OCRProvider, ScreenshotHelper, SmartBar, EnconvoResponse, Commander } from "@enconvo/api";
 
 interface OCRRequestParams extends RequestOptions {
     context_files: string[]
     image_files: string[]
 }
 
-export default async function main(req: Request): Promise<Response> {
+export default async function main(req: Request): Promise<EnconvoResponse> {
     const options: OCRRequestParams = await req.json()
-    console.log('ocr options', options)
+    // console.log('ocr options', options)
 
     const { path } = await ScreenshotHelper.selectScreenArea()
 
@@ -17,7 +17,14 @@ export default async function main(req: Request): Promise<Response> {
         image_url: path,
     })
 
-    await SmartBar.show({ context: ocrResult.text })
+    await SmartBar.show({})
+    const context: SmartBar.SelectionTextContext = {
+        content: ocrResult.text,
+        title: ocrResult.text,
+        type: "selectionText",
+    }
 
-    return Response.none()
+    await SmartBar.addContexts({ contexts: [context] })
+
+    return EnconvoResponse.none()
 }

@@ -1,9 +1,7 @@
-import { EnconvoResponse, OCRProvider, ScreenshotHelper, Clipboard, showHUD, Command } from "@enconvo/api";
+import { EnconvoResponse, OCRProvider, ScreenshotHelper, Clipboard, showHUD } from "@enconvo/api";
 
 
-export default async function main(req: Request): Promise<EnconvoResponse> {
-    const options = await req.json()
-
+export default async function main(): Promise<EnconvoResponse> {
 
     const { path } = await ScreenshotHelper.selectScreenArea()
     console.log('path', path)
@@ -16,7 +14,9 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
 
     await Clipboard.copy(ocrResult.text)
 
-    await showHUD("OCR results copied to clipboard")
+    if (ocrResult.text) {
+        await showHUD("OCR results copied to clipboard")
+    }
 
     return EnconvoResponse.none()
 }

@@ -1,13 +1,12 @@
-import { BaseChatMessage, ChatMessageContent, Response, RequestOptions, ResponseAction, OCRProvider, FileUtil } from "@enconvo/api";
+import { BaseChatMessage, ChatMessageContent, RequestOptions, ResponseAction, OCRProvider, FileUtil, EnconvoResponse, Runtime, Action } from "@enconvo/api";
 
 interface OCRRequestParams extends RequestOptions {
     context_files: string[]
     image_files: string[]
 }
 
-export default async function main(req: Request): Promise<Response> {
+export default async function main(req: Request): Promise<EnconvoResponse> {
     const options: OCRRequestParams = await req.json()
-    console.log('ocr options', options)
     const { context_files, image_files } = options
 
     const { images } = FileUtil.categorizeFiles(image_files || context_files || [])
@@ -18,20 +17,24 @@ export default async function main(req: Request): Promise<Response> {
         image_url: images[0],
     })
 
+    if (Runtime.isNeedJSONObject()) {
+        return EnconvoResponse.json({
+            result: ocrResult.text
+        })
+    }
+
     const actions: ResponseAction[] = [
-
+        Action.Paste({ title: "Paste", content: ocrResult.text }),
+        Action.Paste({ content: ocrResult.text }),
+        Action.InsertBelow({ content: ocrResult.text }),
+        Action.Copy({ content: ocrResult.text }),
     ]
-
-    return {
-        type: "messages",
-        messages: [
+    return EnconvoResponse.messages(
+        [
             BaseChatMessage.assistant([
-                // Create HTML content to display the OCR result
-                // This HTML mimics a search results page with dictionary entries
                 ChatMessageContent.text(ocrResult.text)
             ])
-
         ],
-        actions: actions
-    }
+        actions
+    )
 }
