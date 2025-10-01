@@ -9,6 +9,9 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
     const options: TranslateRequestParams = await req.json()
 
     const { path } = await ScreenshotHelper.selectScreenArea()
+    if (!path) {
+        return EnconvoResponse.none()
+    }
 
     if (options.show_result_in_smartbar) {
         await res.write({
