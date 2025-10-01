@@ -1,7 +1,7 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "ocr_action",
-  "version": "0.0.68",
+  "version": "0.0.72",
   "description": "OCR Extension",
   "title": "OCR",
   "icon": "icon.png",
@@ -103,25 +103,18 @@
       ]
     },
     {
-      "name": "screenshot_translate",
-      "title": "Screenshot Translate",
+      "name": "screenshot_action",
+      "title": "Screenshot Action",
       "description": "Select the screen area for OCR and translate the OCR results",
       "icon": "icon.png",
       "mode": "no-view",
       "runInBackground": true,
+      "commandType": "function",
       "parameters": {
         "type": "object",
         "properties": {}
       },
       "preferences": [
-        {
-          "name": "ocr_providers",
-          "description": "The OCR provider to use.",
-          "type": "extension",
-          "required": false,
-          "default": "default",
-          "title": "OCR Provider"
-        },
         {
           "name": "copy_to_clipboard",
           "description": "Whether to copy the translated results to the clipboard.",
@@ -137,6 +130,71 @@
           "required": false,
           "default": true,
           "title": "Show Result in Smartbar"
+        },
+        {
+          "name": "need_ocr",
+          "description": "Whether to perform OCR before translation.",
+          "type": "checkbox",
+          "required": false,
+          "default": true,
+          "title": "Need OCR"
+        },
+        {
+          "name": "ocr_providers",
+          "description": "The OCR provider to use.",
+          "type": "extension",
+          "required": false,
+          "default": "default",
+          "title": "OCR Provider"
+        },
+        {
+          "name": "post_command",
+          "type": "command",
+          "title": "Post Command",
+          "default": "",
+          "description": "The default command on the SmartBar. You can change it to any command you want.",
+          "filter": {
+            "recommend_extensions": [
+              {
+                "name": "writing_package",
+                "expand": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "screenshot_translate",
+      "title": "Screenshot Translate",
+      "description": "Select the screen area for OCR and translate the OCR results",
+      "targetCommand": "ocr_action|screenshot_action",
+      "icon": "icon.png",
+      "mode": "no-view",
+      "runInBackground": true,
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      },
+      "preferences": [
+        {
+          "name": "post_command",
+          "type": "command",
+          "title": "Post Command",
+          "default": "translate|translate",
+          "description": "The default command on the SmartBar. You can change it to any command you want.",
+          "filter": {
+            "recommend_extensions": [
+              {
+                "name": "translate",
+                "expand": false
+              },
+              {
+                "name": "writing_package",
+                "expand": true
+              }
+            ]
+          }
         }
       ]
     }
