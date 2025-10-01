@@ -1,4 +1,4 @@
-import { OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, SmartBar, CommandManageUtils } from "@enconvo/api";
+import { OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, SmartBar, CommandManageUtils, Action } from "@enconvo/api";
 
 interface TranslateRequestParams extends RequestOptions {
     show_result_in_smartbar: boolean
@@ -15,8 +15,9 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
     if (!path) {
         return EnconvoResponse.none()
     }
-
+    const commandInfo = await CommandManageUtils.getCommandInfo(options.post_command)
     if (options.show_result_in_smartbar) {
+        SmartBar.show()
         await res.write({
             content: BaseChatMessage.user([
                 ChatMessageContent.imageUrl({
@@ -28,17 +29,16 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
 
         await res.write({
             content: BaseChatMessage.assistant([
-                ChatMessageContent.text("")
+                ChatMessageContent.loadingIndicator({
+                    text: "Processing..."
+                }),
             ]),
             action: res.WriteAction.AppendMessage
         })
-        SmartBar.show()
     }
 
     let callCommandParams: Record<string, any> = {}
     if (options.need_ocr === true) {
-
-
         res.writeLoading("Performing OCR...")
 
         const ocrProvider = await OCRProvider.fromEnv()
@@ -56,7 +56,6 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
     }
 
     if (options.show_result_in_smartbar) {
-        const commandInfo = await CommandManageUtils.getCommandInfo(options.post_command)
         res.writeLoading((commandInfo?.title || options.post_command) + " is running...")
     }
 
@@ -87,9 +86,12 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         await Clipboard.copy(text)
         await showHUD("Results copied to clipboard")
     }
-
     if (options.show_result_in_smartbar) {
-        return text
+        return EnconvoResponse.text(text, [
+            Action.Paste({ content: text }),
+            Action.InsertBelow({ content: text }),
+            Action.Copy({ content: text }),
+        ])
     }
 
 
