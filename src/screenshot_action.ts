@@ -1,14 +1,18 @@
-import { OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, SmartBar, CommandManageUtils, Action } from "@enconvo/api";
+import { PanelCoordinator, OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, CommandManageUtils, Action, PanelType } from "@enconvo/api";
 
 interface TranslateRequestParams extends RequestOptions {
-    show_result_in_smartbar: boolean
+    show_result_in_panel: boolean
     copy_to_clipboard: boolean
     need_ocr: boolean
     post_command: string
+    window_mode: {
+        value: PanelType
+    }
 }
 
 export default async function main(req: Request): Promise<EnconvoResponse> {
     const options: TranslateRequestParams = await req.json()
+
 
     const { path } = await ScreenshotHelper.selectScreenArea()
     console.log('screenshot path', path)
@@ -16,8 +20,10 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         return EnconvoResponse.none()
     }
     const commandInfo = await CommandManageUtils.getCommandInfo(options.post_command)
-    if (options.show_result_in_smartbar) {
-        SmartBar.show()
+    if (options.show_result_in_panel) {
+        await PanelCoordinator.openPanel({
+            panel: options.window_mode.value || "smart_bar",
+        })
         await res.write({
             content: BaseChatMessage.user([
                 ChatMessageContent.imageUrl({
@@ -47,20 +53,18 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
             image_url: path,
         })
 
-        console.log('ocrResult', ocrResult, options.post_command)
         callCommandParams.input_text = ocrResult.text
     } else {
-        callCommandParams.context_files = [
+        callCommandParams.user_input_files = [
             path
         ]
     }
 
-    if (options.show_result_in_smartbar) {
+    if (options.show_result_in_panel) {
         res.writeLoading((commandInfo?.title || options.post_command) + " is running...")
     }
 
     const translateResult = await NativeAPI.callCommand(options.post_command, { ...callCommandParams })
-    console.log('result', JSON.stringify(translateResult, null, 2))
 
     let text = ''
 
@@ -86,7 +90,7 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         await Clipboard.copy(text)
         await showHUD("Results copied to clipboard")
     }
-    if (options.show_result_in_smartbar) {
+    if (options.show_result_in_panel) {
         return EnconvoResponse.text(text, [
             Action.Paste({ content: text }),
             Action.InsertBelow({ content: text }),
