@@ -1,8 +1,8 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "ocr_action",
-  "version": "0.0.125",
-  "description": "OCR Extension",
+  "version": "0.0.138",
+  "description": "OCR commands for extracting text from images and screenshots, with silent clipboard copy and interactive SmartBar display modes.",
   "title": "OCR",
   "icon": "icon.png",
   "author": "EnconvoAI",
@@ -43,7 +43,8 @@
         {
           "name": "ocr_providers",
           "description": "The OCR provider to use.",
-          "type": "extension",
+          "type": "provider",
+          "providerCategory": "ocr",
           "required": false,
           "default": "default",
           "title": "OCR Provider"
@@ -64,7 +65,8 @@
         {
           "name": "ocr_providers",
           "description": "The OCR provider to use.",
-          "type": "extension",
+          "type": "provider",
+          "providerCategory": "ocr",
           "required": false,
           "default": "default",
           "title": "OCR Provider"
@@ -91,7 +93,10 @@
           "description": "The hotkey used to trigger the command",
           "type": "hotkey",
           "required": false,
-          "default": { "hotkey": "Option+S", "hotkey_mode": "normal" },
+          "default": {
+            "hotkey": "Option+S",
+            "hotkey_mode": "normal"
+          },
           "title": "Hotkey"
         }
       ]
@@ -111,7 +116,8 @@
         {
           "name": "ocr_providers",
           "description": "The OCR provider to use.",
-          "type": "extension",
+          "type": "provider",
+          "providerCategory": "ocr",
           "required": false,
           "default": "default",
           "title": "OCR Provider"
@@ -124,6 +130,7 @@
       "description": "Select the screen area for OCR and call the command ",
       "icon": "icon.png",
       "mode": "no-view",
+      "private": true,
       "runInBackground": true,
       "commandType": "function_command",
       "showInCommandList": false,
@@ -218,7 +225,7 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
+    "@enconvo/api": "link:../../enconvo.nodejs/enconvo_api",
     "mp3-concat": "^0.1.2"
   },
   "devDependencies": {
@@ -233,8 +240,8 @@
     "lint:fix": "npm run lint --fix",
     "format": "prettier --write \"**/*.ts\"",
     "format:check": "prettier --list-different \"**/*.ts\"",
-    "build": "enconvo",
-    "dev": "enconvo --dev"
+    "build": "enconvo dev",
+    "dev": "enconvo dev --dev"
   },
   "minAppVersion": "1.8.8"
 }

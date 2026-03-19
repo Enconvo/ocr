@@ -4,7 +4,6 @@ import {
   ScreenshotHelper,
   SmartBar,
   EnconvoResponse,
-  Commander,
 } from "@enconvo/api";
 
 interface OCRRequestParams extends RequestOptions {

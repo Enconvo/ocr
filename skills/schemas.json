@@ -1,0 +1,40 @@
+[
+  {
+    "name": "ocr",
+    "title": "OCR",
+    "description": "Convert image to text",
+    "routePath": "ocr_action/ocr",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "context_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Context files"
+        },
+        "image_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Image file paths for OCR, supports file:// protocol"
+          },
+          "description": "Image files for OCR"
+        }
+      }
+    }
+  },
+  {
+    "name": "silent_screenshot_ocr",
+    "title": "Silent Screenshot OCR",
+    "description": "Select the screen area for OCR and copy the OCR results to the clipboard.",
+    "routePath": "ocr_action/silent_screenshot_ocr"
+  },
+  {
+    "name": "screenshot_ocr",
+    "title": "Screenshot OCR",
+    "description": "Select the screen area for OCR and show the OCR results in a smartbar window.",
+    "routePath": "ocr_action/screenshot_ocr"
+  }
+]

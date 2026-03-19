@@ -1,9 +1,10 @@
-import { PanelCoordinator, OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, CommandManageUtils, Action, PanelType } from "@enconvo/api";
+import { PanelCoordinator, OCRProvider, ScreenshotHelper, EnconvoResponse, NativeAPI, RequestOptions, Clipboard, showHUD, res, BaseChatMessage, ChatMessageContent, CommandManageUtils, Action, PanelType, NativeEventUtils, environment, BaseChatMessageLike, uuid, Commander, Router, ContextUtils, ScreenshotContextItem } from "@enconvo/api";
 
 interface TranslateRequestParams extends RequestOptions {
     show_result_in_panel: boolean
     copy_to_clipboard: boolean
     need_ocr: boolean
+    path: string
     post_command: string
     window_mode: {
         value: PanelType
@@ -12,35 +13,21 @@ interface TranslateRequestParams extends RequestOptions {
 
 export default async function main(req: Request): Promise<EnconvoResponse> {
     const options: TranslateRequestParams = await req.json()
-
-
-    const { path } = await ScreenshotHelper.selectScreenArea()
-    console.log('screenshot path', path)
-    if (!path) {
-        return EnconvoResponse.none()
+    const { context_items } = options
+    console.log("context_items ,", context_items)
+    const screenshotContext = context_items?.find((item) => { return item.type === 'screenshot' }) as ScreenshotContextItem | undefined
+    if (!screenshotContext) {
+        throw new Error('there is no image')
     }
-    const commandInfo = await CommandManageUtils.getCommandInfo(options.post_command)
+    let path = screenshotContext.url
+
     if (options.show_result_in_panel) {
         await PanelCoordinator.openPanel({
             panel: options.window_mode.value || "smart_bar",
-        })
-        await res.write({
-            content: BaseChatMessage.user([
-                ChatMessageContent.imageUrl({
-                    url: path
-                })
-            ]),
-            action: res.WriteAction.AppendMessage
+            showWebContainer: true
         })
 
-        await res.write({
-            content: BaseChatMessage.assistant([
-                ChatMessageContent.loadingIndicator({
-                    text: "Processing..."
-                }),
-            ]),
-            action: res.WriteAction.AppendMessage
-        })
+        res.writeLoading("Processing...")
     }
 
     let callCommandParams: Record<string, any> = {}
@@ -55,49 +42,23 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
 
         callCommandParams.input_text = ocrResult.text
     } else {
-        callCommandParams.user_input_files = [
-            path
-        ]
+        callCommandParams = { context_items }
     }
 
-    if (options.show_result_in_panel) {
-        res.writeLoading((commandInfo?.title || options.post_command) + " is running...")
-    }
+    const commandKey = options.post_command
+    const translateResult = await NativeAPI.request(commandKey, callCommandParams)
 
-    const translateResult = await NativeAPI.callCommand(options.post_command, { ...callCommandParams })
+
+    // const result = await response.json()
+    console.log('resp', JSON.stringify(translateResult, null, 2))
+
+    console.log('translateResult', translateResult)
 
     let text = ''
 
-    if (typeof translateResult?.data?.result === 'string') {
-        text = translateResult?.data?.result || ''
-    } else if (typeof translateResult?.data?.result === 'object') {
-        text = JSON.stringify(translateResult?.data?.result, null, 2)
-    } else if (Array.isArray(translateResult.data?.messages) && translateResult.data?.messages?.length > 0) {
-        const message: BaseChatMessage = translateResult.data?.messages[0]
-        if (Array.isArray(message.content)) {
-            for (const content of message.content) {
-                if (content.type === 'text') {
-                    text += content.text + '\n'
-                }
-            }
-        } else if (typeof message.content === 'string') {
-            text = message.content
-        }
-    }
-
-    console.log('translateResult', text)
-    if (options.copy_to_clipboard) {
-        await Clipboard.copy(text)
-        await showHUD("Results copied to clipboard")
-    }
     if (options.show_result_in_panel) {
-        return EnconvoResponse.text(text, [
-            Action.Paste({ content: text }),
-            Action.InsertBelow({ content: text }),
-            Action.Copy({ content: text }),
-        ])
+        return translateResult
     }
-
 
     return EnconvoResponse.none()
 }
