@@ -1,13 +1,14 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "ocr_action",
-  "version": "0.0.138",
+  "version": "0.0.140",
   "description": "OCR commands for extracting text from images and screenshots, with silent clipboard copy and interactive SmartBar display modes.",
   "title": "OCR",
   "icon": "icon.png",
   "author": "EnconvoAI",
   "categories": [
-    "OCR"
+    "OCR",
+    "Provider"
   ],
   "group": "ocr",
   "license": "MIT",
@@ -222,11 +223,136 @@
           }
         }
       ]
+    },
+    {
+      "name": "ai_model_ocr_provider",
+      "title": "AI Model OCR",
+      "description": "AI Model OCR Provider that allows you to use AI Model",
+      "icon": "ai.png",
+      "mode": "no-view",
+      "commandType": "provider",
+      "provider_category": "ocr",
+      "preferences": [
+        {
+          "name": "instruction",
+          "description": "The instruction to use for OCR with AI Model.",
+          "type": "multiline_text_field",
+          "required": false,
+          "default": "You are a helpful assistant that can extract text from images, don't use markdown format. ",
+          "title": "Instruction"
+        },
+        {
+          "name": "llm",
+          "description": "The model used to generate responses",
+          "type": "provider",
+          "providerCategory": "llm",
+          "required": false,
+          "default": "enconvo_ai",
+          "defaultOptions": [
+            {
+              "commandName": "enconvo_ai",
+              "modelName": "google/gemini-2.5-flash",
+              "temperature": 0
+            }
+          ],
+          "title": "AI Model Provider"
+        }
+      ],
+      "private": true
+    },
+    {
+      "name": "apple_ocr_provider",
+      "title": "Apple Native OCR",
+      "description": "Apple OCR Provider that allows you to use Apple's Local OCR service",
+      "icon": "apple.png",
+      "mode": "no-view",
+      "commandType": "provider",
+      "provider_category": "ocr",
+      "preferences": [],
+      "private": true
+    },
+    {
+      "name": "enconvo_mistral_ocr_provider",
+      "title": "Mistral OCR (Enconvo Cloud Plan)",
+      "description": "Mistral OCR Provider that allows you to use Mistral's online OCR service",
+      "icon": "mistral.jpg",
+      "mode": "no-view",
+      "commandType": "provider",
+      "provider_category": "ocr",
+      "preferences": [
+        {
+          "name": "modelName",
+          "title": "Model",
+          "description": "The model to use for OCR.",
+          "type": "dropdown",
+          "required": false,
+          "default": "mistral/mistral-ocr-latest",
+          "data": [
+            {
+              "title": "Mistral OCR Latest",
+              "value": "mistral/mistral-ocr-latest",
+              "id": "enconvo-mistral-ocr-latest",
+              "description": "Mistral OCR Latest — document and image OCR via Enconvo Cloud Plan.",
+              "is_online": true,
+              "is_enconvo_cloud": true
+            }
+          ]
+        }
+      ],
+      "private": true
+    },
+    {
+      "name": "mistral_ocr_provider",
+      "title": "Mistral OCR",
+      "description": "Mistral OCR Provider that allows you to use Mistral's online OCR service",
+      "icon": "mistral.jpg",
+      "mode": "no-view",
+      "commandType": "provider",
+      "provider_category": "ocr",
+      "preferences": [
+        {
+          "name": "credentials",
+          "description": "The key management provider to use",
+          "type": "extension",
+          "required": false,
+          "default": "mistral",
+          "extensionType": "credentials-provider",
+          "extensionFilter": {
+            "targetCommands": [
+              "credentials|mistral"
+            ]
+          },
+          "title": "Credential Provider"
+        },
+        {
+          "name": "modelName",
+          "title": "Model",
+          "description": "The model to use for OCR.",
+          "type": "dropdown",
+          "required": false,
+          "default": "mistral-ocr-latest",
+          "data": [
+            {
+              "title": "Mistral OCR Latest",
+              "value": "mistral-ocr-latest",
+              "id": "mistral-ocr-latest-byok",
+              "description": "Mistral OCR Latest — document and image OCR with your own API key.",
+              "is_online": true,
+              "is_enconvo_cloud": false
+            }
+          ]
+        }
+      ],
+      "private": true
     }
   ],
   "dependencies": {
     "@enconvo/api": "link:../../enconvo.nodejs/enconvo_api",
-    "mp3-concat": "^0.1.2"
+    "mp3-concat": "^0.1.2",
+    "@mistralai/mistralai": "^1.5.1",
+    "axios": "^1.7.9",
+    "file-system-cache": "^3.0.0",
+    "form-data": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "^18.19.31",
