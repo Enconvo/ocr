@@ -30,7 +30,10 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
         res.writeLoading("Processing...")
     }
 
-    let callCommandParams: Record<string, any> = {}
+    let callCommandParams: Record<string, any> = {
+        message_limit: 0
+    }
+
     if (options.need_ocr === true) {
         res.writeLoading("Performing OCR...")
 
@@ -42,11 +45,11 @@ export default async function main(req: Request): Promise<EnconvoResponse> {
 
         callCommandParams.input_text = ocrResult.text
     } else {
-        callCommandParams = { context_items }
+        callCommandParams.context_items = context_items
     }
 
     const commandKey = options.post_command
-    const translateResult = await NativeAPI.request(commandKey, callCommandParams)
+    const translateResult = await NativeAPI.api(commandKey, callCommandParams, { signal: req.signal })
 
 
     // const result = await response.json()

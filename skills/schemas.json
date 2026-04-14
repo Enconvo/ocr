@@ -36,5 +36,32 @@
     "title": "Screenshot OCR",
     "description": "Select the screen area for OCR and show the OCR results in a smartbar window.",
     "routePath": "ocr_action/screenshot_ocr"
+  },
+  {
+    "name": "models",
+    "title": "models",
+    "description": "Router for models",
+    "routes": [
+      {
+        "name": "enconvo_mistral",
+        "description": "",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "routePath": "ocr_action/models/enconvo_mistral"
+      },
+      {
+        "name": "mistral",
+        "description": "",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "routePath": "ocr_action/models/mistral"
+      }
+    ]
   }
 ]
