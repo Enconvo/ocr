@@ -1,7 +1,7 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "ocr_action",
-  "version": "0.0.148",
+  "version": "0.0.186",
   "description": "OCR commands for extracting text from images and screenshots, with silent clipboard copy and interactive SmartBar display modes.",
   "title": "OCR",
   "icon": "icon.png",
@@ -133,7 +133,7 @@
       "mode": "no-view",
       "private": true,
       "runInBackground": true,
-      "commandType": "function_command",
+      "commandType": "command",
       "showInCommandList": false,
       "parameters": {
         "type": "object",

@@ -4,7 +4,7 @@ description: >
   OCR commands for extracting text from images and screenshots, with silent clipboard copy and interactive SmartBar display modes.
 metadata:
   author: EnconvoAI
-  version: "0.0.148"
+  version: "0.0.186"
 ---
 
 ## API Reference
